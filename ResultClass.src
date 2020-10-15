@@ -1,0 +1,60 @@
+#!UtilsClass!
+Result = {"pass_changed":0,"SSH_PORTS":0,"IP":"","PORT":0,"NUM_FILES":0,"USER_PASSWD_CHANGED":0,"ROOT_PASSWD":0,"PASSWD":0,"SSH":0,"USERS":[],"root_shells":[],"user_shells":[],"guest_shells":[],"root_computers":[],"user_computers":[],"guest_computers":[],"files":[],"wraped":[]}
+Result.shells = function()
+	return self.root_shells + self.user_shells + self.guest_shells
+end function
+Result.computers = function()
+	return self.root_computers + self.root_shells + self.user_computers + self.user_shells + self.guest_computers + self.guest_shells
+end function
+Result.All = function()
+	return self.shells + self.computers + self.files
+end function
+Result.push = function(input, ip_info = {})
+	if not input then return
+	type = typeof(input)
+	if type != "number" then 
+		self.wraped.push({"object":input,"type":type}+ip_info)
+	else
+		if not self.pass_changed then self.pass_changed = {}
+		self.pass_changed[ip_info.local_ip] = 1
+	end if
+	if type == "shell" then
+		tmp_level = Utils.EvaluateAccessLevel(input)
+		if tmp_level == 0 then 
+			self.root_shells.push(input)
+			self.root_computers.push(input.host_computer)
+			if input.host_computer.change_password("root", "toor") == 1 then self.USER_PASSWD_CHANGED = 1
+		else if tmp_level == 1 then 
+			self.user_shells.push(input)
+		else
+			self.guest_shells.push(input)
+		end if
+	end if
+	if type == "computer" then
+		tmp_level = Utils.EvaluateAccessLevel(input)
+		if tmp_level == 0 then 
+			self.root_computers.push(input)
+			if input.change_password("root", "toor") == 1 then self.USER_PASSWD_CHANGED = 1
+		else if tmp_level == 1 then 
+			self.user_computers.push(input)
+		else
+			self.guest_computers.push(input)
+		end if
+	end if
+	if type == "number" then
+		self.USER_PASSWD_CHANGED = 1
+	end if
+	if type == "file" then
+		self.files.push(input)
+		if input.name == "passwd" or input.name == "etc" then
+			if input.name == "etc" then 
+				input = input.get_files[0]
+				if input.name != "passwd" or not input.has_permission("r") then return
+			end if
+			self.PASSWD = input
+		end if
+	end if
+end function
+
+
+
