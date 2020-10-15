@@ -1,7 +1,3 @@
-if params.len < 1 then exit("Specify file to obfuscate")
-s = get_shell.host_computer.File(params[0]).content
-s = f.content
-
 Optimizer = {"ini":0}
 Optimizer.keywords = "classID for end in abs print range if function not while then else and or true false null return continue break function new self typeof md5 get_router get_shell nslookup whois is_valid_ip is_lan_ip command_info current_date parent_path home_dir program_path active_user user_mail_address user_bank_number format_columns user_input include_lib exit public_ip local_ip computer_ports computers_lan_ip ping_port port_info used_ports bssid_name essid_name change_password create_user create_group create_folder close_program connect_wifi delete_user delete_group groups network_devices get_ports is_network_active lan_ip show_procs current_path touch wifi_networks File copy move rename chmod set_content set_group group path content is_binary is_folder has_permission owner permissions parent name size delete get_folders get_files get_lan_ip is_closed port_number connect_service scp_upload launch build start_terminal put host_computer aircrack airmon decipher smtp_user_list overflow lib_name version load net_use scan scan_address dump_lib device_ports devices_lan_ip lastIndexOf split replace trim code lower upper val to_int abs acos asin atan tan cos sin char floor round rnd sign sqrt str ceil pi slice join pull reverse sort hasIndex indexOf push remove indexes len pop shuffle sum values time params globals locals"
 Optimizer.valid_chars = {}
@@ -154,17 +150,6 @@ Optimizer.Optimize = function(s)
 	o = out.join(char(10))
 	return o
 end function
-O = new Optimizer
-s = O.Optimize(s)
-
-
-get_shell.host_computer.touch(home_dir,"out.src")
-get_shell.host_computer.File(home_dir+"/out.src").set_content(s.replace(";",char(10)).replace(char(1),""""""))
-
-print("Original: "+O.backup.len)
-print("New: "+s.len)
-print("Diff: "+(O.backup.len-s.len))
-print("Percentage: "+round((s.len/O.backup.len)*100,4)+"%")
 
 
 
