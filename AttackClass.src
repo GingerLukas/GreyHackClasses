@@ -1,0 +1,312 @@
+#!UtilsClass!
+#!ResultClass!
+#!AttackParamsClass!
+#!DatabaseClass!
+
+Attack = {"m":0,"c":0,"s":get_shell,"MAIN_PATH":0,"DEFAULT_PASS":"toor","RESULTS":[],"Utils":0,"Inited":0, "db":0}
+Attack.com = function()
+	return self.s.host_computer
+end function
+
+
+Attack.ScanZone = function(input)
+	output = []
+	while input != null
+		word = input[input.indexOf("<b>")+3:input.indexOf("</b>")]
+		if word != null then
+			if word.indexOf(".so") == null then
+				if word[0].val == 0 then
+					output.push(word)
+				end if
+			end if
+		end if
+		input = input[input.indexOf("</b>")+1:input.len-1]
+	end while
+	return output
+end function
+
+Attack.FindVulns = function(lib)
+	if not self.Inited then self.Ini
+	name = lib.lib_name[:-3].remove("_") + "." + lib.version
+	map = self.db.GetEntry("VULNS",name)
+	if map == null then
+		map = {}
+		scanned_lib = self.m.scan(lib)
+		for zone in scanned_lib
+			map[zone] = self.ScanZone(self.m.scan_address(lib, zone))
+		end for
+		self.db.SaveEntry("VULNS", name, map, 0)
+	end if
+	return map
+end function
+
+Attack.Attack = function(ip, ssh_only = 0, include_router = 1)
+	if not self.Inited then self.Ini
+	
+	
+	local = false
+	if is_lan_ip(ip) then
+		if include_router and get_router(ip) then
+			router_ip = ip
+			router = get_router(router_ip)
+			local = true
+			r_tmp = router.devices_lan_ip
+			r_tmp.remove(r_tmp.indexOf(router.local_ip))
+			for lan in r_tmp
+				self.Attack(lan,ssh_only,0)
+			end for
+			ports = router.used_ports
+		else
+			router_ip = ip.split(".")[0:3].join(".")+".1"
+			local = true
+			router = get_router(router_ip)
+			if not router then return null
+			ports = router.device_ports(ip)
+		end if
+	else
+		router = get_router(ip)
+		router_ip = ip
+		if not router then return null
+		ports = router.used_ports
+	end if
+	
+	tmp_port = router.ping_port(8080)
+	if tmp_port then ports.push(tmp_port)
+	tmp_port = router.ping_port(0)
+	if tmp_port then ports.push(tmp_port)
+	result = new Result
+	result.SSH_PORTS = []
+	
+	for port in ports
+		if router.port_info(port).split(" ")[0] == "ssh" then 
+			result.SSH = true
+			result.PORT = port.port_number
+			result.SSH_PORTS.push(port)
+		end if
+	end for
+	if not result.SSH and ssh_only then return null
+	result.root_shells = []
+	result.user_shells = []
+	result.guest_shells = []
+	result.root_computers = []
+	result.user_computers = []
+	result.guest_computers = []
+	result.USERS = []
+	result.files = []
+	result.wraped = []
+	
+	result.IP = router.public_ip
+	
+	ip_info = {"public_ip":router.public_ip,"local_ip":"","computer_type":"computer"}
+	ip_info_router = {"public_ip":router.public_ip,"local_ip":"","computer_type":"router"}
+	
+	for port in ports
+		ip_info.local_ip = port.get_lan_ip
+		print("<b><color=#3366ff>Attacking "+ip+" port " + port.port_number+"</color></b>")
+		if local then 
+			session = self.m.net_use(port.get_lan_ip, port.port_number)
+		else
+			session = self.m.net_use(ip, port.port_number)
+		end if
+		if session == null then continue
+		lib = session.dump_lib
+		if lib == null then continue
+		map = self.FindVulns(lib)
+		for index in map.indexes
+			for vuln in map[index]
+				result.push(lib.overflow(index, vuln, self.DEFAULT_PASS),ip_info)
+			end for
+		end for
+	end for
+	if include_router then
+		ip_info_router.local_ip = router.local_ip
+		print("<b><color=#3366ff>Attacking "+router_ip+" router</color></b>")
+		session = self.m.net_use(router_ip)
+		if session == null then return null
+		lib = session.dump_lib
+		if lib == null then return null
+		map = self.FindVulns(lib)
+		for index in map.indexes
+			if not local then
+				for vuln in map[index]
+					result.push(lib.overflow(index, vuln, self.DEFAULT_PASS), ip_info_router)
+				end for
+			else
+				for lan_ip in router.devices_lan_ip
+					for vuln in map[index]
+						result.push(lib.overflow(index, vuln, lan_ip), ip_info_router+{"local_ip":lan_ip})
+					end for
+				end for
+			end if
+		end for
+	end if
+	if not result.SSH then return result
+	if result.root_shells.len > 0 or result.root_computers.len > 0 then
+		if result.root_computers.len > 0 then 
+			tmp = result.root_computers[0]
+		else if result.root_shells.len > 0 then
+			tmp = result.root_shells[0].host_computer
+		end if
+		//if result.SSH and tmp.change_password("root", self.DEFAULT_PASS) then 
+		//	result.ROOT_PASSWD = self.DEFAULT_PASS
+		//	if self.com.File(self.MAIN_PATH+"/ips.txt") then
+		//		file = self.com.File(self.MAIN_PATH+"/ips.txt")
+		//	else
+		//		self.com.touch(self.MAIN_PATH, "ips.txt")
+		//		file = self.com.File(self.MAIN_PATH+"/ips.txt")
+		//	end if
+		//	file.set_content(file.content + "\"+"n" + result.IP+":"+result.PORT+":root:"+self.DEFAULT_PASS)
+		//	
+		//end if
+	end if
+	return result
+end function
+
+Attack.Ini = function()
+	if not self.Utils then self.Utils = new Utils
+	if not self.m then self.m = Utils.IncludeLib("metaxploit", self.com, 1)
+	if not self.m then user_input("Metaxploit.so not found <b>ctrl+c</b> to exit")
+	if not self.c then self.c = Utils.IncludeLib("crypto", self.com)
+	if not self.c then print("<color=#ff0000>crypto.so not found</color>")
+	if not self.MAIN_PATH then self.MAIN_PATH = home_dir + "/DB"
+	//if not self.com.File(self.MAIN_PATH) then self.com.create_folder(home_dir, "DB")
+	if not DB.shared then 
+		self.db = DATABASE("/DB", self.s.connect_service(REMOTE_IP, REMOTE_PORT, REMOTE_USER, REMOTE_PASSWD))
+		self.db.secure = 0
+		DB.shared = self.db
+	else
+		self.db = DB.shared
+	end if
+	self.Inited = true
+end function
+
+Attack.Auto = function(attackParams)
+	if not self.Inited then self.Ini
+	if attackParams.RANDOM then
+		while self.RESULTS.len < attackParams.NUM
+			ip = floor(((rnd*1000)%255)+1) + "." + floor(((rnd*1000)%255)+1) + "." + floor(((rnd*1000)%255)+1) + "." + floor(((rnd*1000)%255)+1)
+			if not is_valid_ip(ip) then continue
+			result = new Result
+			result = self.Attack(ip, attackParams.SSH_ONLY)
+			if result then
+				self.HandleResult(result)
+				self.RESULTS.push(result)
+			end if
+		end while
+	else
+		for ip in attackParams.IPS
+			if not is_valid_ip(ip) then continue
+			result = new Result
+			result = self.Attack(ip, attackParams.SSH_ONLY)
+			if result then
+				self.HandleResult(result)
+				self.RESULTS.push(result)
+			end if
+		end for
+	end if
+	
+end function
+
+Attack.HandleResult = function(result)
+	if result.computers.len > 0 then 
+		if attackParams.BANK or attackParams.MAIL then self.Utils.GetBankAndMail(result.computers[0], attackParams.BANK, attackParams.MAIL)
+		
+		if attackParams.SCAN_COMPUTER then 
+			for computer in result.computers
+				if typeof(computer) == "shell" then computer = computer.host_computer
+				if typeof(computer) != "computer" then continue
+				public_ip = result.IP
+				local_ip = computer.lan_ip
+				if self.com.File(self.MAIN_PATH + "/SCANS/"+public_ip+"/"+local_ip) then continue
+				scan = self.Utils.ScanComputer(computer)
+				if not scan then continue
+				if self.com.touch(self.MAIN_PATH+"/SCANS/"+public_ip,local_ip) != 1 then continue
+				self.com.File(self.MAIN_PATH+"/SCANS/"+public_ip+"/"+local_ip).set_content(scan.join("\"+"n"))
+			end for
+		end if
+		if attackParams.CONFIG then
+			for computer in result.computers
+				if typeof(computer) == "shell" then computer = computer.host_computer
+				if typeof(computer) != "computer" then continue
+				users_file = computer.File("/server/conf/UserConfig.sys")
+				conf_file = computer.File("/server/conf/smtpd.conf")
+				if users_file and conf_file and users_file.has_permission("r") and conf_file.has_permission("r") then
+					if not self.com.File(self.MAIN_PATH+"/CONFIGS/"+result.IP) then self.com.touch(self.MAIN_PATH+"/CONFIGS",result.IP)
+					self.com.File(self.MAIN_PATH+"/CONFIGS/"+result.IP).set_content(conf_file.content+"\"+"n"+users_file.content)
+					break
+				end if
+			end for
+		end if
+	end if
+end function
+
+Attack.Elevate = function()
+	if not self.Inited then self.Ini
+	lib_folder = self.com.File("/lib")
+	if not lib_folder then return
+	
+	result = new Result
+	result.root_shells = []
+	result.user_shells = []
+	result.guest_shells = []
+	result.root_computers = []
+	result.user_computers = []
+	result.guest_computers = []
+	result.USERS = []
+	result.files = []
+	result.wraped = []
+	result.IP = "local"
+	
+	router = get_router
+	ip_info = {"public_ip":router.public_ip,"local_ip":get_shell.host_computer.lan_ip,"computer_type":"computer"}
+	if router.local_ip == ip_info.local_ip then ip_info.computer_type = "router"
+	
+	for lib in lib_folder.get_files
+		lib = self.m.load(lib.path)
+		if not lib then continue
+		map = self.FindVulns(lib)
+		for index in map.indexes
+			for vuln in map[index]
+				result.push(lib.overflow(index, vuln, self.DEFAULT_PASS),ip_info)
+			end for
+		end for
+	end for
+	return result
+end function
+
+Attack.GetElevatedShell = function()
+	result = self.Elevate
+	self.WriteResult(result)
+	if result.root_shells.len > 0 then return result.root_shells[0]
+	if result.USER_PASSWD_CHANGED and get_shell("root",self.DEFAULT_PASS) then return get_shell("root",self.DEFAULT_PASS)
+	if result.user_shells.len > 0 then return result.user_shells[0]
+	if result.USER_PASSWD_CHANGED then
+		for user in self.com.File("/home").get_folders
+			shell = get_shell(user.name, self.DEFAULT_PASS)
+			if shell then return shell
+		end for
+	end if
+end function
+
+Attack.WriteResult = function(result)
+	string = "IP ROOT USER GUEST PASSWD SSH CHPASSWD"
+	root = result.root_shells.len + result.root_computers.len
+	user = result.user_shells.len + result.user_computers.len
+	guest = result.guest_shells.len + result.guest_computers.len
+	string = string + "\" + "n" + result.IP + " " + root + " " + user + " " + guest + " " + result.PASSWD + " " + result.SSH + " " + result.USER_PASSWD_CHANGED
+	print(format_columns(string))
+end function
+
+Attack.WriteAll = function()
+	string = "IP ROOT USER GUEST PASSWD SSH CHPASSWD"
+	for result in self.RESULTS
+		if result then
+			root = result.root_shells.len + result.root_computers.len
+			user = result.user_shells.len + result.user_computers.len
+			guest = result.guest_shells.len + result.guest_computers.len
+			string = string + "\" + "n" + result.IP + " " + root + " " + user + " " + guest + " " + result.PASSWD + " " + result.SSH + " " + result.USER_PASSWD_CHANGED
+		end if
+	end for
+	print(format_columns(string))
+end function
+

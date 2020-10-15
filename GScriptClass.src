@@ -1,0 +1,14 @@
+GScriptInterpreter = {}
+
+GSCRIPTINTERPRETER = function()
+	g = new GScriptInterpreter
+	router = get_router
+	g["localRouterIP"] = router.local_ip
+	g["publicRouterIP"] = router.public_ip
+	g["localComputerIP"] = host_computer.lan_ip
+	
+	return g
+end function
+
+
+

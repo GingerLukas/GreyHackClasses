@@ -1,0 +1,207 @@
+Utils = {"s":get_shell,"BANK_FILE":0,"MAIL_FILE":0,"BANK_INDEX":0,"MAIL_INDEX":0,"INDEX_FILE":0,"MAIN_PATH":0,"Inited":0}
+
+Utils.com = function()
+	return self.s.host_computer
+end function
+Utils.Ini = function()
+	if not self.MAIN_PATH then self.MAIN_PATH = "" + home_dir + "/DB"
+	if not self.INDEX_FILE then
+		if not self.com.File(self.MAIN_PATH+"/indexes.txt") then self.com.touch(self.MAIN_PATH,"indexes.txt")
+		self.INDEX_FILE = self.com.File(self.MAIN_PATH+"/indexes.txt")
+		if self.INDEX_FILE then
+			if self.INDEX_FILE.content.split("\"+"n").len > 1 then
+				self.BANK_INDEX = self.INDEX_FILE.content.split("\"+"n")[0]
+				self.MAIL_INDEX = self.INDEX_FILE.content.split("\"+"n")[1]
+			else
+				self.INDEX_FILE.set_content("0\" + "n0")
+			end if
+		end if
+	end if
+	if not self.BANK_FILE then 
+		tmp_bank = self.com.File(self.MAIN_PATH + "/bank.txt")
+		if not tmp_bank then self.com.touch(self.MAIN_PATH, "bank.txt")
+		self.BANK_FILE = self.com.File(self.MAIN_PATH + "/bank.txt")
+	end if
+	if not self.MAIL_FILE then 
+		tmp_mail = self.com.File(self.MAIN_PATH + "/mail.txt")
+		if not tmp_mail then self.com.touch(self.MAIN_PATH, "mail.txt")
+		self.MAIL_FILE = self.com.File(self.MAIN_PATH + "/mail.txt")
+		self.Inited = true
+	end if
+end function
+
+Utils.GetBankAndMail = function(computer, bank = true, mail = false)
+	if not bank and not mail then return
+	if not self.Inited then self.Ini
+	if bank and not self.BANK_FILE then return "ERROR_BANK_FILE_IS_NOT_DEFINED"
+	if mail and not self.MAIL_FILE then return "ERROR_MAIL_FILE_IS_NOT_DEFINED"
+	if typeof(computer) == "shell" then
+		computer = computer.host_computer
+	end if
+	if typeof(computer) != "computer" then return "ERROR_WRONG_PARAMS_PARSED_OBJECT_IS_NOT_COMPUTER_OR_SHELL"
+	home_folder = computer.File("/home")
+	if not home_folder then return "ERROR_/HOME_NOT_FOUND"
+	for folder in home_folder.get_folders
+		for ffolder in folder.get_folders
+			if ffolder.name == "Config" then
+				for file in ffolder.get_files
+					if bank and file.name == "Bank.txt" and file.has_permission("r") then self.AppendLoot(file.content, "")
+					if mail and file.name == "Mail.txt" and file.has_permission("r") then self.AppendLoot("", file.content)
+				end for
+			end if
+		end for
+	end for
+end function
+
+Utils.AppendLoot = function(bank_input = "", mail_input = "")
+	if not self.Inited then self.Ini
+	if bank_input != "" then
+		if self.BANK_FILE.content.len > 78000 then
+			new_name = "bank" + self.BANK_INDEX + ".txt"
+			self.BANK_FILE.rename(new_name)
+			self.com.touch(self.MAIN_PATH,"bank.txt")
+			self.BANK_FILE = self.com.File(self.MAIN_PATH + "/bank.txt")
+			self.BANK_INDEX = self.BANK_INDEX + 1
+			self.INDEX_FILE.set_content(self.BANK_INDEX+"\"+"n"+self.MAIL_INDEX)
+		end if
+		self.BANK_FILE.set_content(self.BANK_FILE.content + "\" + "n" + bank_input)
+	end if
+	if mail_input != "" then
+		if self.MAIL_FILE.content.len > 78000 then
+			new_name = "mail" + self.MAIL_INDEX + ".txt"
+			self.MAIL_FILE.rename(new_name)
+			self.com.touch(self.MAIN_PATH,"mail.txt")
+			self.MAIL_FILE = self.com.File(self.MAIN_PATH + "/mail.txt")
+			self.MAIL_INDEX = self.MAIL_INDEX + 1
+			self.INDEX_FILE.set_content(self.BANK_INDEX+"\"+"n"+self.MAIL_INDEX)
+		end if
+		self.MAIL_FILE.set_content(self.MAIL_FILE.content + "\" + "n" + mail_input)
+	end if
+end function
+
+Utils.SearchFolder = function(folder, name = "", special = false, output)
+	if not folder then return "ERROR_FOLDER_IN_NULL"
+	if special then
+		if folder.name.indexOf(name) != null then output.push(folder.path)
+		for file in folder.get_files
+			if file.name.indexOf(name) != null then output.push(file.path)
+		end for
+	else
+		if folder.name == name then output.push(folder.path)
+		for file in folder.get_files
+			if file.name == name then output.push(file.path)
+		end for
+	end if
+	for folder in folder.get_folders
+		self.SearchFolder(folder, name, special, output)
+	end for
+end function
+
+Utils.FindFile = function(pc,name = "")
+	if typeof(pc) == "shell" then pc = pc.host_computer
+	if typeof(pc) != "computer" and typeof(pc) != "file" then return "ERROR_COMPUTER_NOT_PROVIDED"
+	if typeof(pc) == "file" then 
+		root_folder = self.GetRootFolder(pc)
+	else
+		root_folder = pc.File("/")
+	end if
+	if not root_folder then return "ERROR_ROOT_FOLDER_NOT_OBTAINED"
+	output = []
+	special = false
+	if name.indexOf("*") != null then 
+		special = true
+		name = name.remove("*")
+	end if
+	self.SearchFolder(root_folder, name, special, output)
+	return output
+end function
+
+Utils.CreateBounce = function(path = "")
+	remote_shell = get_shell
+	credentials = self.com.File(path)
+	if not credentials then return "ERROR_FILE_NOT_FOUND"
+	credentials = credentials.content.split("\" + "n")
+	for cred in credentials
+		tmp = remote_shell.connect_service(cred[0],cred[1],cred[2],cred[3])
+		if tmp then remote_shell = tmp
+	end for
+	return remote_shell
+end function
+
+Utils.ScanFolder = function(folder, depth, output, name_mode = 0)
+	for f in folder.get_files + folder.get_folders
+		if name_mode == 0 then
+			output.push(" "*depth + f.name + " "+f.permissions)
+		else if name_mode == 1 then
+			output.push(f.path)
+		end if
+		self.ScanFolder(f, depth + 2, output, name_mode)
+	end for
+end function
+
+Utils.ScanComputer = function(computer, name_mode = 0)
+	if typeof(computer) == "shell" then computer = computer.host_computer
+	if typeof(computer) != "computer" then return 
+	output = []
+	root_folder = computer.File("/")
+	if not root_folder then return
+	if name_mode == 0 then
+		output.push(root_folder.name + " " + root_folder.permissions)
+	else if name_mode == 1 then
+		output.push(root_folder.path)
+	end if
+	self.ScanFolder(root_folder,2,output, name_mode)
+	return output
+end function
+
+Utils.GetRootFolder = function(file)
+	root_folder = file
+	while root_folder.name != "/"
+		root_folder = root_folder.parent
+	end while
+	return root_folder
+end function
+
+Utils.EvaluateAccessLevel = function(object)
+	if typeof(object) == "shell" then object = object.host_computer.File("/etc/passwd")
+	if typeof(object) == "computer" then object = object.File("/etc/passwd")
+	if typeof(object) == "file" then 
+		tmp_folder = self.GetRootFolder(object)
+		for folder in tmp_folder.get_folders
+			if folder.name == "etc" then 
+				for file in folder.get_files
+					if file.name == "passwd" then
+						object = file
+						break
+					end if
+				end for
+			end if
+		end for
+	end if
+	tmp_level = 2
+	if object.has_permission("r") then tmp_level = 1
+	if object.has_permission("w") then tmp_level = 0
+	return tmp_level
+end function
+
+Utils.GetAccountType = function(input, type = "USER")
+	if not input then return type
+	if input.len == 8 and typeof(input.to_int) != "string" then
+		type = "BANK"
+	else if input.indexOf("@") != null and input[-5:].indexOf(".") != null then
+		type = "MAIL"
+	end if
+	return type
+end function
+
+Utils.IncludeLib = function(name, computer = null, hard_include = false)
+	if computer == null then computer = get_shell.host_computer
+	for tmp in self.ScanComputer(computer, 1)
+		lib = include_lib(tmp)
+		if lib and lib.classID.lower == name+"lib" then return lib
+	end for
+	if hard_include then exit("Lib " + name + " not found")
+	return null
+end function
+
+

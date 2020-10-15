@@ -1,0 +1,28 @@
+DateTime = {"month":0,"day":0,"year":0,"hour":0,"minute":0}
+DateTime.Parse = function(input)
+	d = new DateTime
+	tmp = input.split(" ")
+	tmp_d = tmp[0].split("-")
+	d.day = tmp_d[0].val
+	d.month = tmp_d[1].val
+	d.year = tmp_d[2].val
+	tmp_d = tmp[1].split(":")
+	d.hour = tmp_d[0].val
+	d.minute = tmp_d[1].val
+	return d
+end function
+DateTime.DaysTotal = function()
+	m = [31,28,31,30,31,30,31,31,30,31,30,31]
+	if self.year%4==0 then m[1] = 29
+	sum = floor((self.year-1)*365.25)
+	return sum + m[:self.month-1].sum+self.day
+end function
+DateTime.ToString = function()
+	tmp_h = str(self.hour)
+	if tmp_h.len == 1 then tmp_h = "0"+tmp_h
+	tmp_m = str(self.minute)
+	if tmp_m.len == 1 then tmp_m = "0"+tmp_m
+	return self.day+"-"+self.month+"-"+self.year+" "+tmp_h+":"+tmp_m
+end function
+
+

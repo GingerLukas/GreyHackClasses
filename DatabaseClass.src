@@ -1,0 +1,159 @@
+DB = {"shell":0,"PATH":0,"computer":0,"folder":0,"secure":0,"shared":0}
+
+DATABASE = function(path,shell = null)
+	d = new DB
+	if typeof(shell) != "shell" then return null
+	d.shell = shell
+	d.computer = d.shell.host_computer
+	d.PATH = path
+	tmp_path = path.split("/")[:-1].join("/")
+	if tmp_path == "" then tmp_path = "/"
+	if not d.computer.File(path) then d.computer.create_folder(tmp_path,path.split("/")[-1])
+	d.folder = d.computer.File(path)
+	return d
+end function
+
+DB.CreateTable = function(name, secure = -1)
+	if secure == -1 then secure = self.secure
+	self.computer.create_folder(self.PATH, name)
+	folder = self.computer.File(self.PATH+"/"+name)
+	if not folder then return 0
+	if not secure then return folder
+	folder.chmod("u-wrx")
+	folder.chmod("o-wrx")
+	folder.chmod("g-wrx")
+	return folder
+end function
+
+DB.CreateEntry = function(table, name, secure = -1)
+	if secure == -1 then secure = self.secure
+	self.computer.create_folder(self.PATH+"/"+table, name)
+	folder = self.computer.File(self.PATH+"/"+table+"/"+name)
+	if not folder then return 0
+	if not secure then return folder
+	folder.chmod("u-wrx")
+	folder.chmod("o-wrx")
+	folder.chmod("g-wrx")
+	return folder
+end function
+
+DB.SetValue = function(table, entry, name, value, secure = -1, shell = null)
+	if secure == -1 then secure = self.secure
+	self.computer.touch(self.PATH+"/"+table+"/"+entry, name)
+	file = self.computer.File(self.PATH+"/"+table+"/"+entry+"/"+name)
+	if not file then return 0
+	t = typeof(value)
+	if file.is_binary then
+		if shell == null then shell = get_shell
+		path = self.PATH+"/"+table
+		if not self.computer.File(path+"/"+entry) then self.computer.create_folder(path, entry)
+		path = path + "/" + entry
+		shell.scp_upload(file.path,path,self.shell)
+	else if t == "number" then
+		value = char(65533)+value
+	else if t == "list" then
+		value = char(65534)+value.join(char(65535))
+	end if
+	if not file.is_binary then file.set_content(value)
+	if not secure then return file
+	file.chmod("u-wrx")
+	file.chmod("o-wrx")
+	file.chmod("g-wrx")
+	return file
+end function
+
+DB.GetValue = function(table, entry, name)
+	file = self.computer.File(self.PATH+"/"+table+"/"+entry+"/"+name)
+	if not file then return 0
+	if file.is_binary then return file
+	tmp = file.content
+	if tmp.len > 0 and tmp[0] == char(65534) then
+		tmp = tmp[1%tmp.len:].split(char(65535))
+	else if tmp.len > 0 and tmp[0] == char(65533) then
+		tmp = tmp[1%tmp.len:].val
+	end if
+	return tmp
+end function
+
+DB.GetEntry = function(table, name)
+	folder = self.computer.File(self.PATH+"/"+table+"/"+name)
+	if not folder then return null
+	entry = {}
+	for file in folder.get_files
+		tmp = file.content
+		if tmp.len > 0 and tmp[0] == char(65534) then
+			tmp = tmp[1%tmp.len:].split(char(65535))
+		else if tmp.len > 0 and tmp[0] == char(65533) then
+			tmp = tmp[1%tmp.len:].val
+		end if
+		entry[file.name] = tmp
+	end for
+	for f in folder.get_folders
+		entry[f.name] = self.GetEntry(table, name+"/"+f.name)
+	end for
+	return entry
+end function
+
+DB.SaveEntry = function(table, name, map, delete_old = 1, secure = -1, shell = null)
+	if secure == -1 then secure = self.secure
+	if not self.computer.File(self.PATH+"/"+table) then self.CreateTable(table, secure)
+	path = self.PATH+"/"+table+"/"+name
+	if	delete_old then 
+		folder = self.computer.File(path)
+		if folder then folder.delete
+	end if
+	for index in map.indexes
+		if index == "__isa" then continue
+		type = typeof(map[index])
+		tmp = map[index]
+		if type == "number" then
+			tmp = char(65533)+map[index]
+		else if type == "map" then
+			self.SaveEntry(table+"/"+name, index, map[index], delete_old, secure)
+			continue
+		else if type == "list" then
+			tmp = char(65534)+map[index].join(char(65535))
+		end if
+		self.SetValue(table, name, index, tmp, secure, shell)
+	end for
+end function
+
+DB.ListAllTables = function()
+	tables = []
+	for folder in self.folder.get_folders
+		tables.push(folder.name)
+	end for
+	return tables
+end function
+
+DB.ListAllEntries = function(table)
+	entries = []
+	for folder in self.computer.File(self.PATH+"/"+table).get_folders
+		entries.push(folder.name)
+	end for
+	return entries
+end function
+
+DB.ListAllEntries = function(table, entry)
+	values = []
+	for file in self.computer.File(self.PATH+"/"+table).get_files
+		entries.push({"name":file.name,"value":file.content})
+	end for
+	return values
+end function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

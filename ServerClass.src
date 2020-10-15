@@ -1,0 +1,63 @@
+Server = {"IP":0,"PORT":0,"PASSWD":0,"shell":0,"computer":0}
+
+SERVER = function()
+	s = new Server
+	s.server = get_shell
+	s.computer = s.shell.host_computer
+	return s
+end function
+
+Server.Auth = function(ip, port, password)
+	tmp_shell = self.shell.connect_service(ip, port, "root", password)
+	if tmp_shell then
+		self.shell = tmp_shell
+		self.computer = self.shell.host_computer
+		return 1
+	end if
+	return 0
+end function
+
+Server.SecureTouch = function(path, name)
+	self.computer.touch(path, name)
+	file = self.computer.File(path+"/"+name)
+	if not file then return 0
+	file.chmod("u-wrx")
+	file.chmod("o-wrx")
+	file.chmod("g-wrx")
+	return file
+end function
+
+Server.SecureCreateFolder = function(path, name)
+	self.computer.create_folder(path, name)
+	folder = self.computer.File(path+"/"+name)
+	if not folder then return 0
+	folder.chmod("u-wrx")
+	folder.chmod("o-wrx")
+	folder.chmod("g-wrx")
+	return folder
+end function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

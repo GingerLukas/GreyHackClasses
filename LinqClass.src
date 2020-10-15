@@ -1,0 +1,126 @@
+Linq = {"values":0}
+Linq.Equal = function(a,b)
+	return a == b
+end function
+Linq.Xor = function(a,b)
+	return a != b
+end function
+Linq.Less = function(a,b)
+	return a < b
+end function
+Linq.More = function(a,b)
+	return a > b
+end function
+Linq.LessOrEqual = function(a,b)
+	return a <= b
+end function
+Linq.MoreOrEqual = function(a,b)
+	return a >= b
+end function
+Linq.Or = function(a,b)
+	return a or b
+end function
+Linq.And = function(a,b)
+	return a and b
+end function
+
+
+
+Linq.GetValueByKey = function(base, keys)
+	for key in keys
+		base = base[key]
+	end for
+	return base
+end function
+
+Linq.GetValue = function(array, var, item)
+	if array.len > 1 then
+		if array[0] == var then
+			return self.GetValueByKey(item,array[1:])
+		else
+			return self.GetValueByKey(globals,array)
+		end if
+	else
+		if array[0].hasIndex("val") and (array[0].val != 0 and array[0] != "0") then 
+			return array[0].val
+		else
+			return array[0]
+		end if
+	end if
+end function
+
+Linq.GetFunc = function(string)
+	if string == "==" then 
+		return @self.Equal
+	else if string == "!=" then
+		return @self.Xor
+	else if string == "<" then
+		return @self.Less
+	else if string == ">" then
+		return @self.More
+	else if string == "<=" then
+		return @self.LessOrEqual
+	else if string == ">=" then
+		return @self.MoreOrEqual
+	else if string == "||" then
+		return @self.Or
+	else if string == "&&" then
+		return @self.And
+	end if
+end function
+
+Linq.Where = function(expression)
+	output = []
+	tmp = expression.split("=>")
+	var = tmp[0].trim
+	ex = tmp[1].trim.split(" ")
+	if ex.len == 1 then
+		ex.push("==")
+		ex.push("1")
+	end if
+	
+	ex[0] = ex[0].split(".")
+	ex[2] = ex[2].split(".")
+	
+	func = self.GetFunc(ex[1])
+	
+	for item in self.values
+		if func(self.GetValue(ex[0],var,item),self.GetValue(ex[2],var,item)) then output.push(item)
+	end for
+	
+	self.values = output
+	return self
+end function
+
+LINQ = function(list)
+	tmp = new Linq
+	tmp.values = list
+	return tmp
+end function
+
+map = {"ID":0,"var":0,"bool":0}
+a = []
+for i in range(1,10)
+	tmp = new map
+	tmp.ID = i
+	tmp.var = i*5
+	tmp.bool = i%2
+	a.push(tmp)
+end for
+
+Object = {}
+
+linq = LINQ(a)
+object = new Object
+object.five = {}
+object.five.four = 4
+linq.y = object
+
+print("x => x.ID > object.five")
+for result in linq.Where("x => x.ID >= y.five.four").values
+	print("ID: "+result.ID)
+end for
+
+
+
+

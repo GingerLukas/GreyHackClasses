@@ -1,0 +1,185 @@
+if params.len < 1 then exit("Specify file to obfuscate")
+s = get_shell.host_computer.File(params[0]).content
+s = f.content
+
+Optimizer = {"ini":0}
+Optimizer.keywords = "classID for end in abs print range if function not while then else and or true false null return continue break function new self typeof md5 get_router get_shell nslookup whois is_valid_ip is_lan_ip command_info current_date parent_path home_dir program_path active_user user_mail_address user_bank_number format_columns user_input include_lib exit public_ip local_ip computer_ports computers_lan_ip ping_port port_info used_ports bssid_name essid_name change_password create_user create_group create_folder close_program connect_wifi delete_user delete_group groups network_devices get_ports is_network_active lan_ip show_procs current_path touch wifi_networks File copy move rename chmod set_content set_group group path content is_binary is_folder has_permission owner permissions parent name size delete get_folders get_files get_lan_ip is_closed port_number connect_service scp_upload launch build start_terminal put host_computer aircrack airmon decipher smtp_user_list overflow lib_name version load net_use scan scan_address dump_lib device_ports devices_lan_ip lastIndexOf split replace trim code lower upper val to_int abs acos asin atan tan cos sin char floor round rnd sign sqrt str ceil pi slice join pull reverse sort hasIndex indexOf push remove indexes len pop shuffle sum values time params globals locals"
+Optimizer.valid_chars = {}
+Optimizer.Ini = function()
+	tmp = self.keywords
+	self.keywords = {}
+	for index in tmp.split(" ")
+		if index == "hasIndex" then continue
+		self.keywords[index] = true
+	end for
+	for a in self.abc + ["_"]
+		self.valid_chars[a] = true
+	end for
+	tmp = self.spaceless.split(" ")
+	self.spaceless = {}
+	for s in tmp
+		self.spaceless[s] = true
+	end for
+	tmp = self.special_chars.split(" ")
+	self.special_chars = {}
+	for sc in tmp
+		self.special_chars[sc] = true
+	end for
+	tmp = self.not_map.split(" ")
+	self.not_map = {}
+	for n in tmp
+		self.not_map[n] = true
+	end for
+	self.ini = true
+end function
+
+Optimizer.abc = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m","n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+Optimizer.special_chars = "{ } : , [ ] " + char(34)
+Optimizer.not_map = "! = + * - /"
+Optimizer.spaceless = "< > { } ( ) [ ] , : " + Optimizer.not_map
+Optimizer.index = [0]
+Optimizer.Next = function()
+	out = ""
+	for i in self.index
+		out = out + self.abc[i]
+	end for
+	self.index[0] = self.index[0] + 1
+	for i in self.index.indexes
+		if self.index[i] == self.abc.len then
+			if i+1 == self.index.len then
+				self.index[i] = 0
+				self.index.push(0)
+				return out
+			else
+				self.index[i] = 0
+				self.index[i+1] = self.index[i+1] + 1
+			end if
+		end if
+	end for
+	if self.keywords.hasIndex(out) then return self.Next
+	return out
+end function
+
+Optimizer.Optimize = function(s)
+	s = s.replace(char(34)*2, char(1)).replace(char(10), char(2)).replace(char(123)+char(125), char(3)).replace(char(91)+char(93), char(4))
+	if not self.ini then self.Ini
+	a = s.values
+	
+	map_active = [false]
+	value_active = [false]
+	
+	m = {}
+	
+	o = []
+	while a.len > 0
+		tmp = a[0]
+		if self.valid_chars.hasIndex(tmp) then
+			tmp_value = a.pull
+			while a.len > 0 and self.valid_chars.hasIndex(a[0])
+				tmp_value = tmp_value + a.pull
+			end while
+			if not self.keywords.hasIndex(tmp_value) and tmp_value != "hasIndex" then
+				if not m.hasIndex(tmp_value) then m[tmp_value] = self.Next
+				tmp_value = m[tmp_value]
+			end if
+			o.push(tmp_value)
+		else if self.special_chars.hasIndex(tmp) then
+			if tmp == char(34) then
+				tmp_value = a.pull
+				while a.len > 0 and a[0] != char(34)
+					tmp_value = tmp_value + a.pull
+				end while
+				if a.len > 0 then tmp_value = tmp_value + a.pull
+				if value_active[-1] then
+					tmp_value = tmp_value[1:tmp_value.len-1]
+					if not m.hasIndex(tmp_value) then m[tmp_value] = self.Next
+					tmp_value = char(34)+m[tmp_value]+char(34)
+				end if
+				o.push(tmp_value)
+			else if tmp == "[" then
+				if self.not_map.hasIndex(o[-1]) then
+					value_active.push(false)
+				else
+					value_active.push(true)
+				end if
+				map_active.push(false)
+				o.push(a.pull)
+			else if tmp == "]" then
+				value_active.pop
+				map_active.pop
+				o.push(a.pull)
+			else if tmp == "{" then
+				map_active.push(true)
+				value_active.push(true)
+				o.push(a.pull)
+			else if tmp == "}" then
+				map_active.pop
+				o.push(a.pull)
+			else if map_active[-1] and tmp == "," then
+				value_active.push(true)
+				o.push(a.pull)
+			else if map_active[-1] and tmp == ":" then
+				value_active.pop
+				o.push(a.pull)
+			else
+				o.push(a.pull)
+			end if
+		else
+			o.push(a.pull)
+		end if
+		if self.spaceless.hasIndex(o[-1]) then
+			tmp = o.pop
+			while o.len > 0 and o[-1] == " "
+				o.pop
+			end while
+			o.push(tmp)
+			while a.len > 0 and a[0] == " "
+				a.pull
+			end while
+		end if
+		//if map_active.len == 0 or value_active.len == 0 then
+		//	get_shell.host_computer.touch(home_dir,"crash.src")
+		//	get_shell.host_computer.File(home_dir+"/crash.src").set_content(o.join("").replace(char(2), char(10)).replace(char(1), char(34)*2))
+		//	exit(o.join("").replace(char(2), char(10)).replace(char(1), char(34)*2))
+		//end if
+	end while
+	o = o.join("")
+	o = o.replace(char(1), char(34)*2).replace(char(2), char(10)).replace(char(3), char(123)+char(125)).replace(char(4), char(91)+char(93))
+	out = []
+	for line in o.split(char(10))
+		tmp = line.trim
+		if tmp == "" then continue
+		out.push(tmp)
+	end for
+	o = out.join(char(10))
+	return o
+end function
+O = new Optimizer
+s = O.Optimize(s)
+
+
+get_shell.host_computer.touch(home_dir,"out.src")
+get_shell.host_computer.File(home_dir+"/out.src").set_content(s.replace(";",char(10)).replace(char(1),""""""))
+
+print("Original: "+O.backup.len)
+print("New: "+s.len)
+print("Diff: "+(O.backup.len-s.len))
+print("Percentage: "+round((s.len/O.backup.len)*100,4)+"%")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
