@@ -1357,10 +1357,12 @@ Explorer.HackshopDownlaod = function(path, dest_path = "/lib", dest_ex = null)
 		for ex in tmp
 			if ex.SCP(path, dest_path, ex, dest_ex) then 
 				Explorer.update_in_progress = 0
+				Explorer.current = Explorer.local
 				return 1
 			end if
 		end for
 	end for
+	Explorer.current = Explorer.local
 	Explorer.update_in_progress = 0
 	return 0
 end function
