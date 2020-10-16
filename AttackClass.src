@@ -31,7 +31,7 @@ Attack.FindVulns = function(lib)
 	map = self.db.GetEntry("VULNS",name)
 	if map == null then
 		if globals.hasIndex({"Explorer":1}.indexes[0]) then
-			Explorer.local.ProcessInput("update")
+			if not Explorer.update_in_progress then Explorer.local.ProcessInput("update")
 		end if
 		map = {}
 		scanned_lib = self.m.scan(lib)
