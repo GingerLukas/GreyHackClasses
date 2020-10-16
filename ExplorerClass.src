@@ -258,7 +258,6 @@ end function
 
 Explorer.Start = function()
 	done = 0
-	self.HackshopDownlaod("/Public/htdocs/downloads/metaxploit.so","/lib",Explorer.local)
 	while not done
 		e = Explorer.current
 		if not e then Explorer.current = self
