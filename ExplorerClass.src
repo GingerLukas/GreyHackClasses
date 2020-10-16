@@ -44,6 +44,11 @@ Explorer.push = function(explorer, array = null)
 		end if
 	end for
 	array.push(explorer)
+	image = {}
+	o = []
+	SystemImager.ScanFolder(explorer.file,o)
+	image[explorer.local_ip] = o.join("")
+	db.SaveEntry("IMAGES",explorer.public_ip,image,0)
 end function
 
 Explorer.cleanUp = function()
