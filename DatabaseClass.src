@@ -48,7 +48,7 @@ DB.SetValue = function(table, entry, name, value, secure = -1, shell = null)
 		path = self.PATH+"/"+table
 		if not self.computer.File(path+"/"+entry) then self.computer.create_folder(path, entry)
 		path = path + "/" + entry
-		shell.scp_upload(file.path,path,self.shell)
+		shell.scp(file.path,path,self.shell)
 	else if t == "number" then
 		value = char(65533)+value
 	else if t == "list" then
