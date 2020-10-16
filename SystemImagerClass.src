@@ -1,0 +1,76 @@
+#!GingerLukas/GZipClass!
+
+SystemImager = {"__ini":0,"permToChar":{},"charToPerm":{}}
+SystemImager.CreateMaps = function()
+	array = [0,0,0,0,0,0,0,0,0,-1]
+	for p in range(0,1023)
+		for i in range(9)
+			array[i] = array[i] + 1
+			if array[i] < 2 then break
+			array[i] = 0
+		end for
+		c = char(32768+p)
+		perm = self.BinaryToPerm(array)
+		self.charToPerm[c] = perm
+		self.permToChar[perm] = c
+	end for
+	
+	self.__ini = 1
+end function
+SystemImager.BinaryToPerm = function(bin)
+	out = ["-","-","-","-","-","-","-","-","-","-"]
+	if bin.len != 10 then return null
+	if bin[0] then out[0] = "d"
+	if bin[1] then out[1] = "r"
+	if bin[2] then out[2] = "w"
+	if bin[3] then out[3] = "x"
+	if bin[4] then out[4] = "r"
+	if bin[5] then out[5] = "w"
+	if bin[6] then out[6] = "x"
+	if bin[7] then out[7] = "r"
+	if bin[8] then out[8] = "w"
+	if bin[9] then out[9] = "x"
+	return out.join("")
+end function
+
+SystemImager.GetFileString = function(file)
+	tmp = GZip.GetCompressedString(file.name)+self.permToChar[file.permissions]
+	return tmp
+end function
+
+SystemImager.ScanFolder = function(folder, out = null)
+	if not self.__ini then self.CreateMaps
+	if out == null then out = []
+	out.push(self.GetFileString(folder)+char(33793))
+	for file in folder.get_files
+		out.push(self.GetFileString(file))
+	end for
+	for f in folder.get_folders
+		self.ScanFolder(f,out)
+	end for
+	out.push(char(33792))
+end function
+
+SystemImager.ParseSystemImage = function(stream)
+	if not self.__ini then self.CreateMaps
+	depth = 0
+	out = []
+	while stream.len > 0
+		tmp_name = []
+		while stream[0].code < 32768
+			tmp_name.push(stream.pull)
+		end while
+		tmp_char = stream.pull
+		if tmp_char.code == 33792 then
+			depth = depth - 1
+			continue
+		end if
+		out.push((" "*depth)+GZip.GetDecompressedString(tmp_name.join(""))+" "+self.charToPerm[tmp_char])
+		if stream[0].code == 33793 then
+			depth = depth + 1
+			stream.pull
+		end if
+	end while
+	return out.join(char(10))
+end function
+
