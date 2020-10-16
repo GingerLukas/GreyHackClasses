@@ -110,7 +110,7 @@ Explorer.ProcessInput = function(input, carry_on = null)
 				tmp_queue = []
 			end if
 		end for
-		if tmp_queue.len > 0 then carry_on.push(tmp_queue)
+		if tmp_queue.len > 0 then carry_on.push(tmp_queue) then
 		tmp_queue = []
 		for opcode in queue
 			if not Explorer.current.ProcessInput(opcode, carry_on) then return 0
