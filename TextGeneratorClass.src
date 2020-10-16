@@ -1,0 +1,48 @@
+TextGenerator = {}
+TextGenerator.GetToken = function(input,prefix)
+	if input.len == 0 or input.indexOf("[") == null or input.indexOf("]") == null then
+		return ""
+	end if
+	while input.len > 0
+		if input[0] == "[" then
+			s = []
+			input.pull
+			while input[0] != "]"
+				s.push(input.pull)
+			end while
+			input.pull
+			return s.join("")
+		else
+			prefix.push(input.pull)
+		end if
+	end while
+end function
+
+TextGenerator.Convert = function(input, output, finalOut)
+	bak_input = input
+	input = input.values
+	if output == null then output = []
+	if finalOut == null then finalOut = []
+	prefix = []
+	
+	token = self.GetToken(input,prefix)
+	if token == "" then
+		finalOut.push(bak_input)
+		return
+	end if
+	if token == "byte" then
+		for i in range(0,255)
+			output.push(prefix.join("")+i+input.join(""))
+		end for
+	end if
+	
+end function
+
+TextGenerator.Generate = function(input)
+	o = [input]
+	fo = []
+	for e in o
+		self.Convert(e,o,fo)
+	end for
+	return fo
+end function
