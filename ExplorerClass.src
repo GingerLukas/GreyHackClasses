@@ -120,7 +120,7 @@ Explorer.ProcessInput = function(input, carry_on = null)
 	
 	if input.indexOf("[") != null and input.indexOf("]") != null then
 		for mask in TextGenerator.Generate(input)
-			self.ProcessInput(mask,car)
+			self.ProcessInput(mask,carry_on)
 		end for
 	end if
 	
