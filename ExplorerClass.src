@@ -536,7 +536,7 @@ Explorer.ATTACK = function(ip, force = 1, start_explorer = 0, output = null)
 	attack = self.attack
 	if not is_valid_ip(ip) then ip = nslookup(ip)
 	if not is_valid_ip(ip) then 
-		print(s_input +" is not valid target")
+		print(ip + " is not valid target")
 		return 0
 	end if
 	result = attack.Attack(ip)
