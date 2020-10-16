@@ -1,3 +1,5 @@
+#!GingerLukas/SystemImagerClass!
+
 Utils = {"s":get_shell,"BANK_FILE":0,"MAIL_FILE":0,"BANK_INDEX":0,"MAIL_INDEX":0,"INDEX_FILE":0,"MAIN_PATH":0,"Inited":0}
 
 Utils.com = function()
@@ -204,4 +206,10 @@ Utils.IncludeLib = function(name, computer = null, hard_include = false)
 	return null
 end function
 
-
+Utils.GetSystemHash = function(system)
+	if typeof(system) == "shell" then system = system.host_computer
+	if typeof(system) != "computer" then return "ERROR_INVALID_ACCESS"
+	o = []
+	SystemImager.ScanFolder(system.File("/"),o)
+	return md5(o.join(""))
+end function
