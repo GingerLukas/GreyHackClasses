@@ -48,7 +48,7 @@ Explorer.push = function(explorer, array = null)
 	o = []
 	SystemImager.ScanFolder(explorer.file,o)
 	image[explorer.local_ip] = o.join("")
-	db.SaveEntry("IMAGES",explorer.public_ip,image,0)
+	Explorer.db.SaveEntry("IMAGES",explorer.public_ip,image,0)
 end function
 
 Explorer.cleanUp = function()
