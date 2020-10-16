@@ -486,10 +486,11 @@ Explorer.Refresh = function()
 	end if
 end function
 
-Explorer.CONNECT = function(ip, type = "cache", opt = 0)
+Explorer.CONNECT = function(ip, type = "cache", output = null)
 	if type == "cache" then
 		ex = self.GetExplorer(ip)
 		if ex then
+			if output != null then output.push(ex)
 			Explorer.current = ex
 			return 1
 		end if
@@ -527,7 +528,7 @@ Explorer.ATTACK = function(ip, force = 1, start_explorer = 0, output = null)
 		return 0
 	end if
 	if start_explorer and not force then
-		if self.CONNECT(ip,"cache") then return 1
+		if self.CONNECT(ip,"cache", output) then return 1
 	end if
 	
 	if ip.indexOf(":") != null then ip = ip.split(":")[0]
@@ -1351,7 +1352,7 @@ Explorer.HackshopDownlaod = function(path, dest_path = "/lib", dest_ex = null)
 	if dest_ex == null then dest_ex = Explorer.local
 	for ip in globals.hackshops
 		tmp = []
-		self.ATTACK(ip,0,0,tmp)
+		self.ATTACK(ip,0,1,tmp)
 		for ex in tmp
 			if ex.SCP(path, dest_path, ex, dest_ex) then return 1
 		end for
