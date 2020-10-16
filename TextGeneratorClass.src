@@ -1,13 +1,13 @@
 TextGenerator = {}
 TextGenerator.GetToken = function(input,prefix)
-	if input.len == 0 or input.indexOf("[") == null or input.indexOf("]") == null then
+	if input.len == 0 or input.indexOf("+") == null or input.indexOf("-") == null then
 		return ""
 	end if
 	while input.len > 0
-		if input[0] == "[" then
+		if input[0] == "+" then
 			s = []
 			input.pull
-			while input[0] != "]"
+			while input[0] != "-"
 				s.push(input.pull)
 			end while
 			input.pull
@@ -26,7 +26,7 @@ TextGenerator.Convert = function(input, output, finalOut)
 	prefix = []
 	
 	token = self.GetToken(input,prefix)
-	if token == "" then
+	if token == "" and bak_input.indexOf("+") == null then
 		finalOut.push(bak_input)
 		return
 	end if

@@ -118,7 +118,7 @@ Explorer.ProcessInput = function(input, carry_on = null)
 		return 1
 	end if
 	
-	if input.indexOf("[") != null and input.indexOf("]") != null then
+	if input.indexOf("+") != null and input.indexOf("-") != null then
 		for mask in TextGenerator.Generate(input)
 			self.ProcessInput(mask,carry_on)
 		end for
