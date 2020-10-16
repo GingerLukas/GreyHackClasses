@@ -175,7 +175,7 @@ Attack.Ini = function()
 	//if not self.com.File(self.MAIN_PATH) then self.com.create_folder(home_dir, "DB")
 	if not DB.shared then 
 		self.db = DATABASE("/DB", self.s.connect_service(REMOTE_IP, REMOTE_PORT, REMOTE_USER, REMOTE_PASSWD))
-		self.db.secure = 0
+		self.db.secure = 1
 		DB.shared = self.db
 	else
 		self.db = DB.shared
