@@ -30,6 +30,9 @@ Attack.FindVulns = function(lib)
 	name = lib.lib_name[:-3].remove("_") + "." + lib.version
 	map = self.db.GetEntry("VULNS",name)
 	if map == null then
+		if globals.hasIndex({"Explorer":1}.indexes[0]) then
+			Explorer.local.ProcessInput("update")
+		end if
 		map = {}
 		scanned_lib = self.m.scan(lib)
 		for zone in scanned_lib
