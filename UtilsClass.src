@@ -1,4 +1,5 @@
 #!GingerLukas/SystemImagerClass!
+#!GingerLukas/TextGeneratorClass!
 
 Utils = {"s":get_shell,"BANK_FILE":0,"MAIL_FILE":0,"BANK_INDEX":0,"MAIL_INDEX":0,"INDEX_FILE":0,"MAIN_PATH":0,"Inited":0}
 
