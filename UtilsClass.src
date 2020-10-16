@@ -180,7 +180,10 @@ Utils.EvaluateAccessLevel = function(object)
 				end for
 			end if
 		end for
+	else
+		return 3
 	end if
+
 	tmp_level = 2
 	if object.has_permission("r") then tmp_level = 1
 	if object.has_permission("w") then tmp_level = 0
