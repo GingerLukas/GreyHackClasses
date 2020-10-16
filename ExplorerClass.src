@@ -110,7 +110,7 @@ Explorer.ProcessInput = function(input, carry_on = null)
 				tmp_queue = []
 			end if
 		end for
-		if tmp_queue.len > 0 then carry_on.push(tmp_queue) then
+		if tmp_queue.len > 0 then carry_on.push(tmp_queue)
 		tmp_queue = []
 		for opcode in queue
 			if not Explorer.current.ProcessInput(opcode, carry_on) then return 0
@@ -118,9 +118,9 @@ Explorer.ProcessInput = function(input, carry_on = null)
 		return 1
 	end if
 	
-	if input.indexOf("[") != null and input.indexOf("]") != null
+	if input.indexOf("[") != null and input.indexOf("]") != null then
 		for mask in TextGenerator.Generate(input)
-			self.ProcessInput(mask,carry_on)
+			self.ProcessInput(mask,car)
 		end for
 	end if
 	
