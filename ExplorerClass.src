@@ -3,7 +3,7 @@
 _E = "<color=#ff0000>"
 _S = "<color=#00ff00>"
 
-Explorer = {"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
+Explorer = {"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
 
 Explorer.db = function()
 	if Explorer.attack.db then return Explorer.attack.db
@@ -1349,14 +1349,19 @@ Explorer.PostProcessResult = function(result)
 end function
 
 Explorer.HackshopDownlaod = function(path, dest_path = "/lib", dest_ex = null)
+	Explorer.update_in_progress = 1
 	if dest_ex == null then dest_ex = Explorer.local
 	for ip in globals.hackshops
 		tmp = []
 		self.ATTACK(ip,0,1,tmp)
 		for ex in tmp
-			if ex.SCP(path, dest_path, ex, dest_ex) then return 1
+			if ex.SCP(path, dest_path, ex, dest_ex) then 
+				Explorer.update_in_progress = 0
+				return 1
+			end if
 		end for
 	end for
+	Explorer.update_in_progress = 0
 	return 0
 end function
 
