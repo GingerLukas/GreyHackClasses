@@ -51,12 +51,12 @@ Explorer.push = function(explorer, array = null)
 	SystemImager.OnTextFile.push(@Explorer.StealFile)
 	SystemImager.ScanFolder(explorer.file,o)
 	image[explorer.local_ip] = o.join("")
-	Explorer.db.SaveEntry("IMAGES",explorer.public_ip,image)
+	Explorer.db.SaveEntry("IMAGES",explorer.public_ip,image,0)
 end function
 
 Explorer.StealFile = function(file)
 	map = {}
-	orig = map
+	save = map
 	explorer = globals["__target_explorer__"]
 	map[explorer.local_ip] = {}
 	map = map[explorer.local_ip]
@@ -68,7 +68,7 @@ Explorer.StealFile = function(file)
 		map = map[part]
 	end for
 	map[file.name] = file.content
-	Explorer.db.SaveEntry("FILESYSTEMS",explorer.public_ip,map)
+	Explorer.db.SaveEntry("FILESYSTEMS",explorer.public_ip,save,0)
 end function
 
 Explorer.cleanUp = function()
