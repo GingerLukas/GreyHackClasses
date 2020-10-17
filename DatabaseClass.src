@@ -43,12 +43,12 @@ DB.SetValue = function(table, entry, name, value, secure = -1, shell = null)
 	file = self.computer.File(self.PATH+"/"+table+"/"+entry+"/"+name)
 	if not file then return 0
 	t = typeof(value)
-	if file.is_binary then
+	if t == "file" and not value.is_binary then
 		if shell == null then shell = get_shell
 		path = self.PATH+"/"+table
 		if not self.computer.File(path+"/"+entry) then self.computer.create_folder(path, entry)
 		path = path + "/" + entry
-		shell.scp(file.path,path,self.shell)
+		shell.scp(value.path,path,self.shell)
 	else if t == "number" then
 		value = char(65533)+value
 	else if t == "list" then
