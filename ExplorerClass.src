@@ -647,12 +647,24 @@ Explorer.LS = function(param = "")
 end function
 
 Explorer.PrintInfo = function()
+	cs = "none"
+	cr = self.GetLib("crypto")
+	if cr then
+		cs = cr.version
+	end if
+	
+	ms = "none"
+	me = self.GetLib("metaxploit")
+	if me then
+		ms = me.version
+	end if
+
 	print("Shell level: "+self.shell_level)
 	print("Computer level: "+self.computer_level)
 	print("File level: "+self.file_level)
 	print
-	print("crypto.so: "+(self.GetLib("crypto")!=null))
-	print("metaxploit.so: "+(self.GetLib("metaxploit")!=null))
+	print("crypto.so: "+cs)
+	print("metaxploit.so: "+ms)
 	print
 	print("Active explorers: "+Explorer.active_explorers.len)
 	tmp_table = ["PUBLIC LOCAL ACCESS"]
