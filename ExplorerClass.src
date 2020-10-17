@@ -58,17 +58,14 @@ Explorer.StealFile = function(file)
 	map = {}
 	save = map
 	explorer = globals["__target_explorer__"]
-	map[explorer.local_ip] = {}
-	map = map[explorer.local_ip]
 	
-	path = file.parent.path.split("/")
-	path.pull
-	for part in path
-		map[part] = {}
-		map = map[part]
-	end for
-	map[file.name] = file.content
-	Explorer.db.SaveEntry("FILES",explorer.public_ip,save,0)
+	entry = explorer.local_ip
+	parent = file.parent
+	if parent.name != "/" then
+		entry = entry + "/" + parent.name
+	end if
+	
+	Explorer.db.SetValue("FILES/"+explorer.public_ip,entry,file.name,file.content,0)
 end function
 
 Explorer.cleanUp = function()
