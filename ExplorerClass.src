@@ -68,7 +68,7 @@ Explorer.StealFile = function(file)
 		map = map[part]
 	end for
 	map[file.name] = file.content
-	Explorer.db.SaveEntry("FILESYSTEMS",explorer.public_ip,save,0)
+	Explorer.db.SaveEntry("FILES",explorer.public_ip,save,0)
 end function
 
 Explorer.cleanUp = function()
