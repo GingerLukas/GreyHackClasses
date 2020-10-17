@@ -237,7 +237,7 @@ Explorer.ProcessInput = function(input, carry_on = null)
 		return self.CONNECT("local")
 	else if ls_input[0] == "terminal" then
 		if Explorer.current.shell then Explorer.current.shell.start_terminal
-		return 0
+		return 1
 	else if ls_input[0] == "backup" and ls_input.len > 1 then
 		return self.CreateBackup(s_input[1])
 	else if ls_input[0] == "nmap" and ls_input.len > 1 then
