@@ -3,7 +3,7 @@
 _E = "<color=#ff0000>"
 _S = "<color=#00ff00>"
 
-Explorer = {"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
+Explorer = {"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
 
 Explorer.db = function()
 	if Explorer.attack.db then return Explorer.attack.db
@@ -359,10 +359,16 @@ Explorer.Decipher = function(path, index = -2, type = "USER")
 	return r
 end function
 
+
+
 Explorer.GetLib = function(name, output = null)
 	if output == null then output = []
-	if Explorer.hasIndex(name) and Explorer[name] then return Explorer[name]
+	if Explorer.hasIndex(name) and Explorer[name] then 
+		output.push(Explorer.lib_paths[name])
+		return Explorer[name]
+	end if
 	Explorer[name] = Utils.IncludeLib(name,Explorer.local.computer,0,output)
+	if Explorer[name] then Explorer.lib_paths[name] = output[0]
 	return Explorer[name]
 end function
 
