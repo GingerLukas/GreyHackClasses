@@ -651,8 +651,8 @@ Explorer.PrintInfo = function()
 	print("Computer level: "+self.computer_level)
 	print("File level: "+self.file_level)
 	print
-	print("crypto.so: "+(Explorer.crypto!=null and Explorer.crypto!=0))
-	print("metaxploit.so: "+(Explorer.metaxploit!=null and Explorer.metaxploit!=0))
+	print("crypto.so: "+(self.GetLib("crypto")!=null))
+	print("metaxploit.so: "+(self.GetLib("metaxploit")!=null))
 	print
 	print("Active explorers: "+Explorer.active_explorers.len)
 	tmp_table = ["PUBLIC LOCAL ACCESS"]
@@ -1375,7 +1375,7 @@ Explorer.HackshopDownlaod = function(path, dest_path = "/lib", dest_ex = null)
 			if ex.SCP(path, dest_path, ex, dest_ex) then 
 				Explorer.update_in_progress = 0
 				Explorer.current = Explorer.local
-				Explorer.local.ProcessInput("include metasploit")
+				Explorer.local.ProcessInput("include metaxploit")
 				return 1
 			end if
 		end for
