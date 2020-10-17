@@ -200,11 +200,15 @@ Utils.GetAccountType = function(input, type = "USER")
 	return type
 end function
 
-Utils.IncludeLib = function(name, computer = null, hard_include = false)
+Utils.IncludeLib = function(name, computer = null, hard_include = false,output = null)
+	if output == null then output = []
 	if computer == null then computer = get_shell.host_computer
 	for tmp in self.ScanComputer(computer, 1)
 		lib = include_lib(tmp)
-		if lib and lib.classID.lower == name+"lib" then return lib
+		if lib and lib.classID.lower == name+"lib" then 
+			output.push(tmp)
+			return lib
+		end if
 	end for
 	if hard_include then exit("Lib " + name + " not found")
 	return null

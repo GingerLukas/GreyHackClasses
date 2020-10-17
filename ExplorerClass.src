@@ -359,10 +359,10 @@ Explorer.Decipher = function(path, index = -2, type = "USER")
 	return r
 end function
 
-Explorer.GetLib = function(name)
-	//TODO
+Explorer.GetLib = function(name, output = null)
+	if output == null then output = []
 	if Explorer.hasIndex(name) and Explorer[name] then return Explorer[name]
-	Explorer[name] = Utils.IncludeLib(name)
+	Explorer[name] = Utils.IncludeLib(name,Explorer.local.computer,0,output)
 	return Explorer[name]
 end function
 
@@ -647,17 +647,28 @@ Explorer.LS = function(param = "")
 end function
 
 Explorer.PrintInfo = function()
+
+
+
 	cs = "none"
-	cr = self.GetLib("crypto")
-	if cr then
-		cs = cr.version
+	ms = "none"
+	
+	out = []
+	me = self.GetLib("metaxploit",out)
+	if out.len > 0 then
+		tmp = me.load(out.pop)
+		if tmp then ms = tmp.version
+		
+		cr = self.GetLib("crypto",out)
+		if out.len > 0 then
+			tmp = me.load(out.pop)
+		if tmp then cs = tmp.version
+		end if
 	end if
 	
-	ms = "none"
-	me = self.GetLib("metaxploit")
-	if me then
-		ms = me.version
-	end if
+	
+	
+	
 
 	print("Shell level: "+self.shell_level)
 	print("Computer level: "+self.computer_level)
