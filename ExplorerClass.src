@@ -1375,6 +1375,7 @@ Explorer.HackshopDownlaod = function(path, dest_path = "/lib", dest_ex = null)
 			if ex.SCP(path, dest_path, ex, dest_ex) then 
 				Explorer.update_in_progress = 0
 				Explorer.current = Explorer.local
+				Explorer.ProcessInput("update metasploit")
 				return 1
 			end if
 		end for
