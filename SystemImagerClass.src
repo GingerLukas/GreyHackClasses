@@ -1,6 +1,6 @@
 #!GingerLukas/GZipClass!
 
-SystemImager = {"__ini":0,"permToChar":{},"charToPerm":{}}
+SystemImager = {"__ini":0,"permToChar":{},"charToPerm":{},"OnTextFile":[]}
 SystemImager.CreateMaps = function()
 	array = [0,0,0,0,0,0,0,0,0,-1]
 	for p in range(0,1023)
@@ -43,6 +43,11 @@ SystemImager.ScanFolder = function(folder, out = null)
 	if out == null then out = []
 	out.push(self.GetFileString(folder)+char(33793))
 	for file in folder.get_files
+		if file.is_binary == 0 then 
+			for delegate in self.OnTextFile
+				delegate(file)
+			end for
+		end if
 		out.push(self.GetFileString(file))
 	end for
 	for f in folder.get_folders
@@ -50,6 +55,7 @@ SystemImager.ScanFolder = function(folder, out = null)
 	end for
 	out.push(char(33792))
 end function
+
 
 SystemImager.ParseSystemImage = function(stream)
 	if not self.__ini then self.CreateMaps
@@ -61,12 +67,12 @@ SystemImager.ParseSystemImage = function(stream)
 			tmp_name.push(stream.pull)
 		end while
 		tmp_char = stream.pull
-		if tmp_char.code == 33792 then
+		if tmp_char.code == 33792 then //depth up
 			depth = depth - 1
 			continue
 		end if
 		out.push((" "*depth)+GZip.GetDecompressedString(tmp_name.join(""))+" "+self.charToPerm[tmp_char])
-		if stream[0].code == 33793 then
+		if stream[0].code == 33793 then //depth-down
 			depth = depth + 1
 			stream.pull
 		end if
