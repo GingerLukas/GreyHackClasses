@@ -47,9 +47,28 @@ Explorer.push = function(explorer, array = null)
 	if explorer.is_local then return
 	image = {}
 	o = []
+	globals["__target_explorer__"] = explorer
+	SystemImager.OnTextFile.push(@Explorer.StealFile)
 	SystemImager.ScanFolder(explorer.file,o)
 	image[explorer.local_ip] = o.join("")
-	Explorer.db.SaveEntry("IMAGES",explorer.public_ip,image,0)
+	Explorer.db.SaveEntry("IMAGES",explorer.public_ip,image)
+end function
+
+Explorer.StealFile = function(file)
+	map = {}
+	orig = map
+	explorer = globals["__target_explorer__"]
+	map[explorer.local_ip] = {}
+	map = map[explorer.local_ip]
+	
+	path = file.parent.path.split("/")
+	path.pull
+	for part in path
+		map[part] = {}
+		map = map[part]
+	end for
+	map[file.name] = file.content
+	Explorer.db.SaveEntry("FILESYSTEMS",explorer.public_ip,map)
 end function
 
 Explorer.cleanUp = function()
