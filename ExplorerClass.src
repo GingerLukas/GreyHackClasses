@@ -62,7 +62,7 @@ Explorer.StealFile = function(file)
 	entry = explorer.local_ip
 	parent = file.parent
 	if parent.name != "/" then
-		entry = entry + "/" + parent.path
+		entry = entry + parent.path
 	end if
 	
 	Explorer.db.SetValue("FILES/"+explorer.public_ip,entry,file.name,file.content,0)
