@@ -32,12 +32,16 @@ TextGenerator.Convert = function(input, finalOut)
 		finalOut.push(bak_input)
 		return
 	end if
-	if token == "byte" then
+	if token.indexOf("_") != null then
+		token = token.split("_")
+		for i in range(token[0].val,token[1].val)
+			self.Convert(prefix.join("")+i+input.join(""),finalOut)
+		end for
+	else if token == "byte" then
 		for i in range(0,255)
 			self.Convert(prefix.join("")+i+input.join(""),finalOut)
 		end for
 	end if
-	
 end function
 
 TextGenerator.Generate = function(input)
