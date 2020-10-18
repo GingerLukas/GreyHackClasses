@@ -41,15 +41,17 @@ end function
 Explorer.push = function(explorer, array = null)
 	if explorer.is_local == 1 then Explorer.local = explorer
 	if array == null then array = Explorer.active_explorers
+	b = 0
 	for shell in array
 		if shell.public_ip == explorer.public_ip and shell.local_ip == explorer.local_ip then
 			shell.AddAccess(explorer.shell)
 			shell.AddAccess(explorer.computer)
 			shell.AddAccess(explorer.file)
-			return
+			b = 1
+			break
 		end if
 	end for
-	array.push(explorer)
+	if not b then array.push(explorer)
 	if explorer.is_local then return
 	
 	if Explorer.cmd_flags[__image_flag__] or Explorer.cmd_flags[__files_flag__] then
