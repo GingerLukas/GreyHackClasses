@@ -58,8 +58,8 @@ Explorer.push = function(explorer, array = null)
 		image = {}
 		o = []
 		globals["__target_explorer__"] = explorer
+		SystemImager.OnTextFile = []
 		if Explorer.cmd_flags[__files_flag__] then
-			SystemImager.OnTextFile = []
 			SystemImager.OnTextFile.push(@Explorer.StealFile)
 		end if
 		SystemImager.ScanFolder(explorer.file,o)
