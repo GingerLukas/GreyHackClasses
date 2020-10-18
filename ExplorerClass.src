@@ -3,7 +3,12 @@
 _E = "<color=#ff0000>"
 _S = "<color=#00ff00>"
 
-Explorer = {"text_on_final_added":0,"cmd_flags":{},"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
+__all_flag__ = "a"
+__files_flag__ = "f"
+__force_flag__ = "F"
+
+CMD_FLAGS = {__files_flag__:0,__all_flag__:0,__force_flag__:0}
+Explorer = {"text_on_final_added":0,"cmd_flags":CMD_FLAGS,"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
 
 Explorer.db = function()
 	if Explorer.attack.db then return Explorer.attack.db
@@ -155,13 +160,27 @@ Explorer.ProcessInput = function(input, carry_on = null)
 	s_input = input.split(" ")
 	l_input = input.trim.lower
 	ls_input = l_input.split(" ")
+	
+	Explorer.cmd_flags = new CMD_FLAGS
+	start_flags_index = input.indexOf(" -")
+	if start_flags_index != null and start_flags_index + 1 < input.len-1 then
+		start_flags_index = start_flags_index + 2
+		for flag_index in range(start_flags_index,input.len-1)
+			if input[flag_index] == " " then break
+			Explorer.cmd_flags[input[flag_index]] = 1
+		end for
+	end if
+	
 	if ls_input[0] == "debug" then
 		self.PrintInfo
+		return 1
+	else if ls_input[0] == "clear" then
+		clear_screen
 		return 1
 	else if ls_input[0] == "decipher" and ls_input.len > 1 then
 		index = -2
 		if ls_input.len > 2 then
-			if ls_input[2] == "all" then 
+			if Explorer.cmd_flags[__all_flag__] then 
 				index = -1
 			else if typeof(ls_input[2].to_int) != "string" then
 				index = ls_input[2].to_int
@@ -230,11 +249,7 @@ Explorer.ProcessInput = function(input, carry_on = null)
 		self.Refresh
 		return (self.shell_level == 0)
 	else if ls_input[0] == "attack" and s_input.len > 1 then
-		if ls_input.len > 2 and ls_input[2] == "force" then
-			return self.ATTACK(s_input[1], 1, 1)
-		else
-			return self.ATTACK(s_input[1], 0, 1)
-		end if
+		return self.ATTACK(s_input[1], Explorer.cmd_flags[__force_flag__], 1)
 	else if ls_input[0] == "connect" and ls_input.len > 1 then
 		return self.CONNECT(ls_input[1])
 	else if ls_input[0] == "exit" then
