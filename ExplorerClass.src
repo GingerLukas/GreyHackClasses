@@ -3,7 +3,7 @@
 _E = "<color=#ff0000>"
 _S = "<color=#00ff00>"
 
-Explorer = {"attack_flags":{},"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
+Explorer = {"text_on_final_added":0,"cmd_flags":{},"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
 
 Explorer.db = function()
 	if Explorer.attack.db then return Explorer.attack.db
@@ -113,6 +113,18 @@ Explorer.ProcessInput = function(input, carry_on = null)
 	if not self.current_folder and self.is_local == 1 then self.current_folder = self.GetFile(home_dir)
 	if not self.current_folder then self.current_folder = self.file
 	
+	if not Explorer.text_on_final_added then
+		TextGenerator.OnFinalAdded.push({"object":self,"index":{"ProcessInput":1}.indexes[0]})
+		Explorer.text_on_final_added = 1
+	end if
+	
+	if input.indexOf("+") != null and input.indexOf("-") != null then
+		for mask in TextGenerator.Generate(input)
+			self.ProcessInput(mask,carry_on)
+		end for
+		return 1
+	end if
+	
 	if input.indexOf(" @@ ") != null then
 		queue = []
 		a = input.split("@@")
@@ -140,12 +152,7 @@ Explorer.ProcessInput = function(input, carry_on = null)
 		return 1
 	end if
 	
-	if input.indexOf("+") != null and input.indexOf("-") != null then
-		for mask in TextGenerator.Generate(input)
-			self.ProcessInput(mask,carry_on)
-		end for
-		return 1
-	end if
+	
 	
 	s_input = input.split(" ")
 	l_input = input.trim.lower
