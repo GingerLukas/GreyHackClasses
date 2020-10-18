@@ -210,9 +210,14 @@ Explorer.ProcessInput = function(input, carry_on = null)
 		end if
 		return 1
 	else if ls_input[0] == "include" and ls_input.len > 1 then
-		t = Utils.IncludeLib(ls_input[1])
-		if t then Explorer[ls_input[1]] = t
-		return (t != null)
+		o = []
+		t = Utils.IncludeLib(ls_input[1],Explorer.local.computer,0,o)
+		if t then 
+			Explorer[ls_input[1]] = t
+			Explorer.lib_paths[ls_input[1]] = o[0]
+			return 1
+		end if
+		return 0
 	else if ls_input[0] == "lan" then
 		self.PrintLocalNetwork
 		return 1
