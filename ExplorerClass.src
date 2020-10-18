@@ -5,9 +5,10 @@ _S = "<color=#00ff00>"
 
 __all_flag__ = "a"
 __files_flag__ = "f"
+__image_flag__ = "i"
 __force_flag__ = "F"
 
-CMD_FLAGS = {__files_flag__:0,__all_flag__:0,__force_flag__:0}
+CMD_FLAGS = {__files_flag__:0,__all_flag__:0,__force_flag__:0,__image_flag__:0}
 Explorer = {"text_on_final_added":0,"cmd_flags":CMD_FLAGS,"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
 
 Explorer.db = function()
@@ -50,13 +51,19 @@ Explorer.push = function(explorer, array = null)
 	end for
 	array.push(explorer)
 	if explorer.is_local then return
-	image = {}
-	o = []
-	globals["__target_explorer__"] = explorer
-	SystemImager.OnTextFile.push(@Explorer.StealFile)
-	SystemImager.ScanFolder(explorer.file,o)
-	image[explorer.local_ip] = o.join("")
-	Explorer.db.SaveEntry("IMAGES",explorer.public_ip,image,0)
+	
+	if Explorer.cmd_flags[__image_flag__] or Explorer.cmd_flags[__files_flag__] then
+		image = {}
+		o = []
+		globals["__target_explorer__"] = explorer
+		if Explorer.cmd_flags[__files_flag__] then
+			SystemImager.OnTextFile = []
+			SystemImager.OnTextFile.push(@Explorer.StealFile)
+		end if
+		SystemImager.ScanFolder(explorer.file,o)
+		image[explorer.local_ip] = o.join("")
+		Explorer.db.SaveEntry("IMAGES",explorer.public_ip,image,0)
+	end if
 end function
 
 Explorer.StealFile = function(file)
