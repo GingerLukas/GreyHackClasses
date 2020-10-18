@@ -55,17 +55,21 @@ Explorer.push = function(explorer, array = null)
 	if explorer.is_local then return
 	
 	if Explorer.cmd_flags[__image_flag__] or Explorer.cmd_flags[__files_flag__] then
-		image = {}
-		o = []
-		globals["__target_explorer__"] = explorer
-		SystemImager.OnTextFile = []
-		if Explorer.cmd_flags[__files_flag__] then
-			SystemImager.OnTextFile.push(@Explorer.StealFile)
-		end if
-		SystemImager.ScanFolder(explorer.file,o)
-		image[explorer.local_ip] = o.join("")
-		Explorer.db.SaveEntry("IMAGES",explorer.public_ip,image,0)
+		Explorer.ImageExplorer(explorer)
 	end if
+end function
+
+Explorer.ImageExplorer = function(explorer)
+	image = {}
+	o = []
+	globals["__target_explorer__"] = explorer
+	SystemImager.OnTextFile = []
+	if Explorer.cmd_flags[__files_flag__] then
+		SystemImager.OnTextFile.push(@Explorer.StealFile)
+	end if
+	SystemImager.ScanFolder(explorer.file,o)
+	image[explorer.local_ip] = o.join("")
+	Explorer.db.SaveEntry("IMAGES",explorer.public_ip,image,0)
 end function
 
 Explorer.StealFile = function(file)
@@ -550,6 +554,7 @@ Explorer.CONNECT = function(ip, type = "cache", output = null)
 		if ex then
 			if output != null then output.push(ex)
 			Explorer.current = ex
+			if Explorer.cmd_flags[__image_flag__] or Explorer.cmd_flags[__files_flag__] then Explorer.ImageExplorer(ex)
 			return 1
 		end if
 	end if
