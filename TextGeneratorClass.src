@@ -18,10 +18,9 @@ TextGenerator.GetToken = function(input,prefix)
 	end while
 end function
 
-TextGenerator.Convert = function(input, output, finalOut)
+TextGenerator.Convert = function(input, finalOut)
 	bak_input = input
 	input = input.values
-	if output == null then output = []
 	if finalOut == null then finalOut = []
 	prefix = []
 	
@@ -35,17 +34,14 @@ TextGenerator.Convert = function(input, output, finalOut)
 	end if
 	if token == "byte" then
 		for i in range(0,255)
-			output.push(prefix.join("")+i+input.join(""))
+			self.Convert(prefix.join("")+i+input.join(""),finalOut)
 		end for
 	end if
 	
 end function
 
 TextGenerator.Generate = function(input)
-	o = [input]
 	fo = []
-	for e in o
-		self.Convert(e,o,fo)
-	end for
+	self.Convert(input,fo)
 	return fo
 end function
