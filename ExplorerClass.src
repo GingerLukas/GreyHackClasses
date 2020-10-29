@@ -11,7 +11,7 @@ __bank_flag__ = "b"
 __mail_flag__ = "m"
 
 CMD_FLAGS = {__files_flag__:0,__all_flag__:0,__force_flag__:0,__image_flag__:0}
-Explorer = {"text_on_final_added":0,"cmd_flags":CMD_FLAGS,"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
+Explorer = {"dic_public_explorers":{},"dic_all_exporers":{},"text_on_final_added":0,"cmd_flags":CMD_FLAGS,"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
 
 Explorer.db = function()
 	if Explorer.attack.db then return Explorer.attack.db
@@ -43,17 +43,21 @@ end function
 Explorer.push = function(explorer, array = null)
 	if explorer.is_local == 1 then Explorer.local = explorer
 	if array == null then array = Explorer.active_explorers
-	b = 0
-	for shell in array
-		if shell.public_ip == explorer.public_ip and shell.local_ip == explorer.local_ip then
-			shell.AddAccess(explorer.shell)
-			shell.AddAccess(explorer.computer)
-			shell.AddAccess(explorer.file)
-			b = 1
-			break
-		end if
-	end for
-	if not b then array.push(explorer)
+	ex_str = explorer.public_ip+":"+explorer.local_ip
+	if Explorer.dic_all_exporers.hasIndex(ex_str) then
+		ex = Explorer.dic_all_exporers[ex_str]
+		ex.AddAccess(explorer.shell)
+		ex.AddAccess(explorer.computer)
+		ex.AddAccess(explorer.file)
+	else
+		Explorer.dic_all_exporers[ex_str] = explorer
+		array.push(explorer)
+	end if
+	if not Explorer.dic_public_explorers.hasIndex(explorer.public_ip) then
+		Explorer.dic_public_explorers[explorer.public_ip] = {}
+	end if
+	Explorer.dic_public_explorers[explorer.public_ip][explorer.local_ip] = explorer
+	
 	if explorer.is_local then return
 	
 	if Explorer.cmd_flags[__image_flag__] or Explorer.cmd_flags[__files_flag__] then
@@ -569,16 +573,14 @@ Explorer.GetExplorer = function(ip, shell = 3, computer = 3, file = 3)
 	if ip.indexOf("local") != null then
 		return Explorer.local
 	else if ip.indexOf(":") != null then
-		for ex in Explorer.active_explorers
-			if ex.public_ip + ":" + ex.local_ip == ip then
-				return ex
-			end if
-		end for
+		if Explorer.dic_all_exporers.hasIndex(ip) then return Explorer.dic_all_exporers[ip]
+		return 0
+	else if is_lan_ip(ip) then
+		if Explorer.dic_public_explorers[self.public_ip].hasIndex(ip) then return Explorer.dic_public_explorers[self.public_ip][ip]
+		return 0
 	else
-		for ex in Explorer.active_explorers
-			if is_valid_ip(ip) and ((is_lan_ip(ip) and ex.public_ip == self.public_ip and ex.local_ip == ip) or (not is_lan_ip and ex.public_ip == ip)) then
-				if ex.shell_level <= shell and ex.computer_level <= computer and ex.file_level <= file then return ex
-			end if
+		for ex in Explorer.dic_public_explorers[ip].values
+			if ex.shell_level <= shell and ex.computer_level <= computer and ex.file_level <= file then return ex
 		end for
 	end if
 	return 0
