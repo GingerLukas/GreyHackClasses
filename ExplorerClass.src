@@ -767,7 +767,7 @@ Explorer.AddAccess = function(object)
 	end if
 end function
 
-Explorer.GetFile = function(path,permissions = "", folder = 0)
+Explorer.GetFile = function(path,permissions = "", force_folder = 0)
 	if typeof(permissions) == "string" then permissions.values
 	path = path.trim
 	if path.len == 0 or  path[0] != "/" then path = (self.current_folder.path+"/"+path)
@@ -783,7 +783,7 @@ Explorer.GetFile = function(path,permissions = "", folder = 0)
 		for perm in permissions
 			success = file.has_permission(perm)
 		end for
-		if success and (file.is_folder or not folder) then return file
+		if success and (file.is_folder or not force_folder) then return file
 	end if
 	if self.computer_level < self.shell_level and self.computer_level < 3 then
 		file = self.computer.File(path)
@@ -791,7 +791,7 @@ Explorer.GetFile = function(path,permissions = "", folder = 0)
 		for perm in permissions
 			success = file.has_permission(perm)
 		end for
-		if success and (file.is_folder or not folder) then return file
+		if success and (file.is_folder or not force_folder) then return file
 	end if
 	if self.file_level < self.computer_level and self.file_level < 3 then
 		file = null
@@ -811,7 +811,7 @@ Explorer.GetFile = function(path,permissions = "", folder = 0)
 		for perm in permissions
 			success = file.has_permission(perm)
 		end for
-		if success and (file.is_folder or not folder) then return file
+		if success and (file.is_folder or not force_folder) then return file
 	end if
 	return null
 end function
