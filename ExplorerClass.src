@@ -578,7 +578,7 @@ Explorer.GetExplorer = function(ip, shell = 3, computer = 3, file = 3)
 	else if is_lan_ip(ip) then
 		if Explorer.dic_public_explorers[self.public_ip].hasIndex(ip) then return Explorer.dic_public_explorers[self.public_ip][ip]
 		return 0
-	else
+	else if Explorer.dic_public_explorers.hasIndex(ip) then
 		for ex in Explorer.dic_public_explorers[ip].values
 			if ex.shell_level <= shell and ex.computer_level <= computer and ex.file_level <= file then return ex
 		end for
