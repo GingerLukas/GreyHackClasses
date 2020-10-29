@@ -214,10 +214,21 @@ Utils.IncludeLib = function(name, computer = null, hard_include = false,output =
 	return null
 end function
 
+Utils.AddToList = function(name,value = 1)
+	if self.hasIndex(name) then self[name].push(value)
+end function
+
 Utils.GetSystemHash = function(system)
 	if typeof(system) == "shell" then system = system.host_computer
 	if typeof(system) != "computer" then return "ERROR_INVALID_ACCESS"
 	o = []
+	s = "system_hash_sizes"
+	Utils[s] = 0
+	SystemImager.OnTextFile = []
+	delegate = function(file)
+		Utils.AddToList(s,file.size.val)
+	end function
+	SystemImager.OnTextFile.push(@delegate)
 	SystemImager.ScanFolder(system.File("/"),o)
-	return md5(o.join(""))
+	return md5((o.join("")+Utils[s].join("")))
 end function
