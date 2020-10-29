@@ -7,6 +7,8 @@ __all_flag__ = "a"
 __files_flag__ = "f"
 __image_flag__ = "i"
 __force_flag__ = "F"
+__bank_flag__ = "b"
+__mail_flag__ = "m"
 
 CMD_FLAGS = {__files_flag__:0,__all_flag__:0,__force_flag__:0,__image_flag__:0}
 Explorer = {"text_on_final_added":0,"cmd_flags":CMD_FLAGS,"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
@@ -304,7 +306,10 @@ Explorer.ProcessInput = function(input, carry_on = null)
 		if ls_input.len > 1 then ip = ls_input[1]
 		return self.Spread(ip, carry_on)
 	else if ls_input[0] == "update" then
-		self.HackshopDownlaod("/Public/htdocs/downloads/metaxploit.so","/lib",Explorer.local)
+		return self.HackshopDownlaod("/Public/htdocs/downloads/metaxploit.so","/lib",Explorer.local)
+	else if ls_input[0] == "collect" then
+		
+		return 1
 	else
 		p = ""
 		if s_input.len > 1 then p = s_input[1:].join(" ")
@@ -398,8 +403,6 @@ Explorer.Decipher = function(path, index = -2, type = "USER")
 	return r
 end function
 
-
-
 Explorer.GetLib = function(name, output = null)
 	if output == null then output = []
 	if Explorer.hasIndex(name) and Explorer[name] then 
@@ -412,7 +415,7 @@ Explorer.GetLib = function(name, output = null)
 end function
 
 Explorer.RM = function(path, out = 0)
-	tmp = self.GetFile(path)
+	tmp = self.GetFile(path,"w")
 	r = ""
 	if tmp then 
 		path = tmp.path
@@ -1454,5 +1457,7 @@ Explorer.HackshopDownlaod = function(path, dest_path = "/lib", dest_ex = null)
 	return 0
 end function
 
-
+Explorer.PostProcess = function()
+	
+end function
 
