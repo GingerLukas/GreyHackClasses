@@ -1,6 +1,6 @@
 #!GingerLukas/GZipClass!
 
-SystemImager = {"__ini":0,"permToChar":{},"charToPerm":{},"OnTextFile":[]}
+SystemImager = {"__ini":0,"permToChar":{},"charToPerm":{},"OnTextFile":[],"OnFolder":[],"OnBinaryFile":[]}
 SystemImager.CreateMaps = function()
 	array = [0,0,0,0,0,0,0,0,0,-1]
 	for p in range(0,1023)
@@ -43,7 +43,11 @@ SystemImager.ScanFolder = function(folder, out = null)
 	if out == null then out = []
 	out.push(self.GetFileString(folder)+char(33793))
 	for file in folder.get_files
-		if file.is_binary == 0 then 
+		if file.is_binary then 
+			for delegate in self.OnBinaryFile
+				delegate(file)
+			end for
+		else
 			for delegate in self.OnTextFile
 				delegate(file)
 			end for
@@ -51,6 +55,9 @@ SystemImager.ScanFolder = function(folder, out = null)
 		out.push(self.GetFileString(file))
 	end for
 	for f in folder.get_folders
+		for delegate in self.OnFolder
+			delegate(f)
+		end for
 		self.ScanFolder(f,out)
 	end for
 	out.push(char(33792))
