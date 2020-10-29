@@ -391,6 +391,7 @@ Explorer.Decipher = function(path, index = -2, type = "USER")
 	end if
 	t = c.decipher(line[0],line[1])
 	if t then 
+		print(line[0]+":"+t)
 		r[line[0]] = t
 		type = Utils.GetAccountType(line[0])
 		if type == "MAIL" then 
