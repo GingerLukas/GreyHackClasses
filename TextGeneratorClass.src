@@ -1,4 +1,4 @@
-TextGenerator = {"OnFinalAdded":[]}
+TextGenerator = {"OnFinalAdded":[],"CustomTokens":[]}
 TextGenerator.GetToken = function(input,prefix)
 	if input.len == 0 or input.indexOf("+") == null or input.indexOf("-") == null then
 		return ""
