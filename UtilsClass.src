@@ -1,7 +1,11 @@
 #!GingerLukas/SystemImagerClass!
 #!GingerLukas/TextGeneratorClass!
+#!GingerLukas/DelegateClass!
 
-Utils = {"s":get_shell,"BANK_FILE":0,"MAIL_FILE":0,"BANK_INDEX":0,"MAIL_INDEX":0,"INDEX_FILE":0,"MAIN_PATH":0,"Inited":0}
+__utils_addToList__ = "__utils_addToList__"
+__system_hash_sizes__ = "__system_hash_sizes__"
+
+Utils = {"SystemImager": new SystemImager,"s":get_shell,"BANK_FILE":0,"MAIL_FILE":0,"BANK_INDEX":0,"MAIL_INDEX":0,"INDEX_FILE":0,"MAIN_PATH":0,"Inited":0}
 
 Utils.com = function()
 	return self.s.host_computer
@@ -218,17 +222,17 @@ Utils.AddToList = function(name,value = 1)
 	if self.hasIndex(name) then self[name].push(value)
 end function
 
+Utils.LogFileSizeHash = function(file)
+	Utils.AddToList(__system_hash_sizes__,file.size.val)
+end function
+
 Utils.GetSystemHash = function(system)
 	if typeof(system) == "shell" then system = system.host_computer
 	if typeof(system) != "computer" then return "ERROR_INVALID_ACCESS"
 	o = []
-	s = "system_hash_sizes"
-	Utils[s] = 0
-	SystemImager.OnTextFile = []
-	delegate = function(file)
-		Utils.AddToList(s,file.size.val)
-	end function
-	SystemImager.OnTextFile.push(@delegate)
-	SystemImager.ScanFolder(system.File("/"),o)
+	Utils[__system_hash_sizes__] = []
+	Utils.SystemImager.OnTextFile[__utils_addToList__] = DELEGATE(Utils,Utils.indexOf(@Utils.LogFileSizeHash))
+	Utils.SystemImager.OnBinaryFile[__utils_addToList__] = DELEGATE(Utils,Utils.indexOf(@Utils.LogFileSizeHash))
+	Utils.SystemImager.ScanFolder(system.File("/"),o)
 	return md5((o.join("")+Utils[s].join("")))
 end function
