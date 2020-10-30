@@ -1,0 +1,62 @@
+Delegate = {"target":{},"targetIndex":"","argCount":0}
+Delegate.Invoke = function(a,b,c,d,e,f,g)
+	if self.argCount > 3 then
+		if self.argCount > 5 then
+			if self.argCount == 7 then
+				self.target[self.targetIndex](a,b,c,d,e,f,g)
+			else
+				self.target[self.targetIndex](a,b,c,d,e,f)
+			end if
+		else
+			if self.argCount == 5 then
+				self.target[self.targetIndex](a,b,c,d,e)
+			else
+				self.target[self.targetIndex](a,b,c,d)
+			end if
+		end if
+	else
+		if self.argCount > 1 then
+			if self.argCount == 3 then
+				self.target[self.targetIndex](a,b,c)
+			else
+				self.target[self.targetIndex](a,b)
+			end if
+		else
+			if self.argCount == 1 then
+				self.target[self.targetIndex](a)
+			else
+				self.target[self.targetIndex]()
+			end if
+		end if
+	end if
+end function
+DELEGATE = function(object,index)
+	d = new Delegate
+	d.target = object
+	d.targetIndex = index
+	s = str(object[index])
+	if s.indexOf("()") != null then 
+		d.argCount = 0
+	else
+		d.argCount = str(object[index]).split(",").len
+	end if
+	return d
+end function
+
+
+
+map = {"val":42}
+map.selfMult = function(i)
+	self.val = self.val * i
+end function
+
+map.selfPrint = function()
+	print(self)
+end function
+
+p = DELEGATE(map,map.indexOf(@map.selfPrint))
+m = DELEGATE(map,map.indexOf(@map.selfMult))
+
+m.Invoke(5)
+p.Invoke()
+
