@@ -10,6 +10,9 @@ __force_flag__ = "F"
 __bank_flag__ = "b"
 __mail_flag__ = "m"
 
+__files_delegate__ = "__files_delegate__"
+__target_explorer__ = "__target_explorer__"
+
 CMD_FLAGS = {__files_flag__:0,__all_flag__:0,__force_flag__:0,__image_flag__:0}
 Explorer = {"dic_public_explorers":{},"dic_all_exporers":{},"cmd_flags":CMD_FLAGS,"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"","crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
 
@@ -67,10 +70,11 @@ end function
 Explorer.ImageExplorer = function(explorer)
 	image = {}
 	o = []
-	globals["__target_explorer__"] = explorer
-	SystemImager.OnTextFile = []
+	globals[__target_explorer__] = explorer
 	if Explorer.cmd_flags[__files_flag__] then
-		SystemImager.OnTextFile.push(@Explorer.StealFile)
+		SystemImager.OnTextFile[__files_delegate__] = DELEGATE(self,self.indexOf(@self.StealFile))
+	else
+		SystemImager.OnTextFile.remove(__files_delegate__)
 	end if
 	SystemImager.ScanFolder(explorer.file,o)
 	image[explorer.local_ip] = o.join("")
@@ -78,7 +82,7 @@ Explorer.ImageExplorer = function(explorer)
 end function
 
 Explorer.StealFile = function(file)
-	explorer = globals["__target_explorer__"]
+	explorer = globals[__target_explorer__]
 	
 	entry = explorer.local_ip
 	parent = file.parent
