@@ -73,7 +73,7 @@ Explorer.ImageExplorer = function(explorer)
 	o = []
 	globals[__target_explorer__] = explorer
 	if Explorer.cmd_flags[__files_flag__] then
-		Explorer.SystemImager.OnTextFile[__files_delegate__] = DELEGATE(self,self.indexOf(@self.StealFile))
+		Explorer.SystemImager.OnTextFile[__files_delegate__] = DELEGATE(self,Explorer.indexOf(@Explorer.StealFile))
 	else if Explorer.SystemImager.hasIndex(__files_delegate__) then
 		Explorer.SystemImager.OnTextFile.remove(__files_delegate__)
 	end if
