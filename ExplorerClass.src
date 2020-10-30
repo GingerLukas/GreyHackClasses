@@ -15,7 +15,7 @@ __processInput_delegate__ = "__processInput_delegate__"
 __target_explorer__ = "__target_explorer__"
 
 CMD_FLAGS = {__files_flag__:0,__all_flag__:0,__force_flag__:0,__image_flag__:0}
-Explorer = {"TextGenerator":new TextGenerator,"dic_public_explorers":{},"dic_all_exporers":{},"cmd_flags":CMD_FLAGS,"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"","crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
+Explorer = {"SystemImager":new SystemImager,"TextGenerator":new TextGenerator,"dic_public_explorers":{},"dic_all_exporers":{},"cmd_flags":CMD_FLAGS,"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"","crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
 
 Explorer.db = function()
 	if Explorer.attack.db then return Explorer.attack.db
@@ -73,11 +73,11 @@ Explorer.ImageExplorer = function(explorer)
 	o = []
 	globals[__target_explorer__] = explorer
 	if Explorer.cmd_flags[__files_flag__] then
-		SystemImager.OnTextFile[__files_delegate__] = DELEGATE(self,self.indexOf(@self.StealFile))
-	else
-		SystemImager.OnTextFile.remove(__files_delegate__)
+		Explorer.SystemImager.OnTextFile[__files_delegate__] = DELEGATE(self,self.indexOf(@self.StealFile))
+	else if Explorer.SystemImager.hasIndex(__files_delegate__) then
+		Explorer.SystemImager.OnTextFile.remove(__files_delegate__)
 	end if
-	SystemImager.ScanFolder(explorer.file,o)
+	Explorer.SystemImager.ScanFolder(explorer.file,o)
 	image[explorer.local_ip] = o.join("")
 	Explorer.db.SaveEntry("IMAGES",explorer.public_ip,image,0)
 end function
@@ -162,7 +162,7 @@ Explorer.ProcessInput = function(input, carry_on = null)
 	
 	
 	if not Explorer.TextGenerator.hasIndex(__processInput_delegate__) then
-		Explorer.TextGenerator.OnFinalAdded[__processInput_delegate__] = DELEGATE(self,self.indexOf(@self.ProcessInput))
+		Explorer.TextGenerator.OnFinalAdded[__processInput_delegate__] = DELEGATE(self,Explorer.indexOf(@Explorer.ProcessInput))
 	else
 		Explorer.TextGenerator.OnFinalAdded[__processInput_delegate__].target = self
 	end if
