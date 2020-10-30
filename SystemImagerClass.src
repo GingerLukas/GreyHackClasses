@@ -1,6 +1,6 @@
 #!GingerLukas/GZipClass!
 
-SystemImager = {"__ini":0,"permToChar":{},"charToPerm":{},"OnTextFile":[],"OnFolder":[],"OnBinaryFile":[]}
+SystemImager = {"__ini":0,"permToChar":{},"charToPerm":{},"OnTextFile":{},"OnFolder":{},"OnBinaryFile":{}}
 SystemImager.CreateMaps = function()
 	array = [0,0,0,0,0,0,0,0,0,-1]
 	for p in range(0,1023)
