@@ -1,6 +1,6 @@
 #!GingerLukas/DelegateClass!
 
-TextGenerator = {"OnFinalAdded":[],"CustomTokens":[]}
+TextGenerator = {"OnFinalAdded":{},"CustomTokens":[]}
 TextGenerator.GetToken = function(input,prefix)
 	if input.len == 0 or input.indexOf("+") == null or input.indexOf("-") == null then
 		return ""
@@ -28,7 +28,7 @@ TextGenerator.Convert = function(input, finalOut)
 	
 	token = self.GetToken(input,prefix)
 	if token == "" and bak_input.indexOf("+") == null then
-		for delegate in self.OnFinalAdded
+		for delegate in self.OnFinalAdded.values
 			delegate.Invoke(bak_input)
 		end for
 		finalOut.push(bak_input)
