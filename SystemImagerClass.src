@@ -10,12 +10,12 @@ SystemImager.CreateMaps = function()
 			array[i] = 0
 		end for
 		c = char(32768+p)
-		perm = self.BinaryToPerm(array)
-		self.charToPerm[c] = perm
-		self.permToChar[perm] = c
+		perm = SystemImager.BinaryToPerm(array)
+		SystemImager.charToPerm[c] = perm
+		SystemImager.permToChar[perm] = c
 	end for
 	
-	self.__ini = 1
+	SystemImager.__ini = 1
 end function
 SystemImager.BinaryToPerm = function(bin)
 	out = ["-","-","-","-","-","-","-","-","-","-"]
@@ -34,14 +34,14 @@ SystemImager.BinaryToPerm = function(bin)
 end function
 
 SystemImager.GetFileString = function(file)
-	tmp = GZip.GetCompressedString(file.name)+self.permToChar[file.permissions]
+	tmp = GZip.GetCompressedString(file.name)+SystemImager.permToChar[file.permissions]
 	return tmp
 end function
 
 SystemImager.ScanFolder = function(folder, out = null)
-	if not self.__ini then self.CreateMaps
+	if not SystemImager.__ini then SystemImager.CreateMaps
 	if out == null then out = []
-	out.push(self.GetFileString(folder)+char(33793))
+	out.push(SystemImager.GetFileString(folder)+char(33793))
 	for file in folder.get_files
 		if file.is_binary then 
 			for delegate in self.OnBinaryFile.values
@@ -52,7 +52,7 @@ SystemImager.ScanFolder = function(folder, out = null)
 				delegate.Invoke(file)
 			end for
 		end if
-		out.push(self.GetFileString(file))
+		out.push(SystemImager.GetFileString(file))
 	end for
 	for f in folder.get_folders
 		for delegate in self.OnFolder.values
@@ -65,7 +65,7 @@ end function
 
 
 SystemImager.ParseSystemImage = function(stream)
-	if not self.__ini then self.CreateMaps
+	if not SystemImager.__ini then SystemImager.CreateMaps
 	depth = 0
 	out = []
 	while stream.len > 0
@@ -78,7 +78,7 @@ SystemImager.ParseSystemImage = function(stream)
 			depth = depth - 1
 			continue
 		end if
-		out.push((" "*depth)+GZip.GetDecompressedString(tmp_name.join(""))+" "+self.charToPerm[tmp_char])
+		out.push((" "*depth)+GZip.GetDecompressedString(tmp_name.join(""))+" "+SystemImager.charToPerm[tmp_char])
 		if stream[0].code == 33793 then //depth-down
 			depth = depth + 1
 			stream.pull
