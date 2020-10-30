@@ -44,19 +44,19 @@ SystemImager.ScanFolder = function(folder, out = null)
 	out.push(self.GetFileString(folder)+char(33793))
 	for file in folder.get_files
 		if file.is_binary then 
-			for delegate in self.OnBinaryFile
-				delegate(file)
+			for delegate in self.OnBinaryFile.values
+				delegate.Invoke(file)
 			end for
 		else
-			for delegate in self.OnTextFile
-				delegate(file)
+			for delegate in self.OnTextFile.values
+				delegate.Invoke(file)
 			end for
 		end if
 		out.push(self.GetFileString(file))
 	end for
 	for f in folder.get_folders
-		for delegate in self.OnFolder
-			delegate(f)
+		for delegate in self.OnFolder.values
+			delegate.Invoke(f)
 		end for
 		self.ScanFolder(f,out)
 	end for
