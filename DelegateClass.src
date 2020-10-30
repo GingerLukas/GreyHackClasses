@@ -43,20 +43,3 @@ DELEGATE = function(object,index)
 	return d
 end function
 
-
-
-map = {"val":42}
-map.selfMult = function(i)
-	self.val = self.val * i
-end function
-
-map.selfPrint = function()
-	print(self)
-end function
-
-p = DELEGATE(map,map.indexOf(@map.selfPrint))
-m = DELEGATE(map,map.indexOf(@map.selfMult))
-
-m.Invoke(5)
-p.Invoke()
-
