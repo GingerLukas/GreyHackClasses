@@ -11,7 +11,7 @@ __bank_flag__ = "b"
 __mail_flag__ = "m"
 
 CMD_FLAGS = {__files_flag__:0,__all_flag__:0,__force_flag__:0,__image_flag__:0}
-Explorer = {"dic_public_explorers":{},"dic_all_exporers":{},"text_on_final_added":0,"cmd_flags":CMD_FLAGS,"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"", "active_explorers":[],"crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
+Explorer = {"dic_public_explorers":{},"dic_all_exporers":{},"cmd_flags":CMD_FLAGS,"lib_paths":{},"update_in_progress":0,"aattack":0,"current":0,"ssh":0,"local":0,"is_local":0,"shell":0,"computer":0,"file":0,"shell_level":3,"computer_level":3,"file_level":3,"current_folder":0,"public_ip":"", "local_ip":"","crypto":0,"metaxploit":0,"bounced_shell":0,"bounced":0}
 
 Explorer.db = function()
 	if Explorer.attack.db then return Explorer.attack.db
@@ -42,7 +42,6 @@ end function
 
 Explorer.push = function(explorer, array = null)
 	if explorer.is_local == 1 then Explorer.local = explorer
-	if array == null then array = Explorer.active_explorers
 	ex_str = explorer.public_ip+":"+explorer.local_ip
 	if Explorer.dic_all_exporers.hasIndex(ex_str) then
 		ex = Explorer.dic_all_exporers[ex_str]
@@ -51,7 +50,7 @@ Explorer.push = function(explorer, array = null)
 		ex.AddAccess(explorer.file)
 	else
 		Explorer.dic_all_exporers[ex_str] = explorer
-		array.push(explorer)
+		if array != null then array.push(explorer)
 	end if
 	if not Explorer.dic_public_explorers.hasIndex(explorer.public_ip) then
 		Explorer.dic_public_explorers[explorer.public_ip] = {}
@@ -92,13 +91,6 @@ Explorer.StealFile = function(file)
 	Explorer.db.SetValue("FILES/"+explorer.public_ip,entry,file.name,file.content)
 end function
 
-Explorer.cleanUp = function()
-	a = []
-	for shell in Explorer.active_explorers
-		self.push(shell, a)
-	end for
-	Explorer.active_explorers = a
-end function
 
 Explorer.ValidateLaunch = function()
 	if (get_router.public_ip != PUBLIC_IP or get_shell.host_computer.lan_ip != LOCAL_IP) and (params.len == 0 or params[0] != globals.SECRET_CODE) then 
@@ -210,10 +202,7 @@ Explorer.ProcessInput = function(input, carry_on = null)
 		self.PrintHelp
 		return 1
 	else if ls_input[0] == "clean" and ls_input.len > 1 then
-		if ls_input[1] == "self" then 
-			self.cleanUp
-			return 1
-		else if ls_input[1] == "trash" and self.computer_level != 3 then
+		if ls_input[1] == "trash" and self.computer_level != 3 then
 			for trash in Utils.FindFile(self.computer,".Trash")
 				self.ClearFolder(trash)
 			end for
@@ -630,7 +619,7 @@ Explorer.ATTACK = function(ip, force = 1, start_explorer = 0, output = null)
 	end for
 	self.PostProcessResult(result)
 	if start_explorer then
-		tmp_ex = Explorer.active_explorers[-1]
+		tmp_ex = Explorer.dic_all_exporers.values[-1]
 		if tmp_ex.public_ip == result.IP then Explorer.current = tmp_ex
 	end if
 	return (result.All.len != 0)
@@ -729,9 +718,9 @@ Explorer.PrintInfo = function()
 	print("crypto.so: "+cs)
 	print("metaxploit.so: "+ms)
 	print
-	print("Active explorers: "+Explorer.active_explorers.len)
+	print("Active explorers: "+Explorer.dic_all_exporers.values.len)
 	tmp_table = ["PUBLIC LOCAL ACCESS"]
-	for ex in Explorer.active_explorers
+	for ex in Explorer.dic_all_exporers.values
 		tmp_table.push(ex.AccessString(1))
 	end for
 	print(format_columns(tmp_table.join("\"+"n")))
@@ -1395,7 +1384,7 @@ Explorer.Spread = function(ip, carry_on = [])
 end function
 
 Explorer.ScanExplorersWifis = function(db_path)
-	for ex in Explorer.active_explorers
+	for ex in Explorer.dic_all_exporers.values
 		if ex.is_local == 1 or ex.computer_level == 3 then continue
 		p = new Proxy
 		p.get_shell = ex.computer
