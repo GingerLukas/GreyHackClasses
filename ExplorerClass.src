@@ -78,8 +78,6 @@ Explorer.ImageExplorer = function(explorer)
 end function
 
 Explorer.StealFile = function(file)
-	map = {}
-	save = map
 	explorer = globals["__target_explorer__"]
 	
 	entry = explorer.local_ip
