@@ -124,7 +124,7 @@ Explorer.ClearFolder = function(path)
 	return 1
 end function
 
-Explorer.ProcessInput = function(input, carry_on = null)
+Explorer.ProcessInput = function(input, carry_on = null,reset_flags = false)
 	if carry_on == null then carry_on = Explorer.carry_on
 	Explorer.push(self)
 	//Explorer.current = self
@@ -175,7 +175,7 @@ Explorer.ProcessInput = function(input, carry_on = null)
 	l_input = input.trim.lower
 	ls_input = l_input.split(" ")
 	
-	Explorer.cmd_flags = new CMD_FLAGS
+	if reset_flags then Explorer.cmd_flags = new CMD_FLAGS
 	start_flags_index = input.indexOf(" -")
 	if start_flags_index != null and start_flags_index + 1 < input.len-1 then
 		start_flags_index = start_flags_index + 2
@@ -320,7 +320,7 @@ Explorer.Start = function()
 		if not e then Explorer.current = self
 		if e.is_local == 1 and not e.current_folder then Explorer.current.current_folder = e.GetFile(home_dir)
 		if not e.current_folder then Explorer.current.current_folder = e.file
-		e.ProcessInput(user_input(e.AccessString + "<color=#ffffff>: " + e.current_folder.path+" > "+_S), Explorer.carry_on)
+		e.ProcessInput(user_input(e.AccessString + "<color=#ffffff>: " + e.current_folder.path+" > "+_S), Explorer.carry_on,true)
 	end while
 end function
 
