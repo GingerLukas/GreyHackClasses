@@ -38,7 +38,7 @@ DELEGATE = function(object,index)
 	if s.indexOf("()") != null then 
 		d.argCount = 0
 	else
-		d.argCount = str(object[index]).split(",").len
+		d.argCount = s.split(",").len
 	end if
 	return d
 end function
