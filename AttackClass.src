@@ -158,7 +158,7 @@ Attack.Attack = function(ip, ssh_only = 0, include_router = 1)
 		//		self.com.touch(self.MAIN_PATH, "ips.txt")
 		//		file = self.com.File(self.MAIN_PATH+"/ips.txt")
 		//	end if
-		//	file.set_content(file.content + "\"+"n" + result.IP+":"+result.PORT+":root:"+self.DEFAULT_PASS)
+		//	file.set_content(file.get_content + "\"+"n" + result.IP+":"+result.PORT+":root:"+self.DEFAULT_PASS)
 		//	
 		//end if
 	end if
@@ -235,7 +235,7 @@ Attack.HandleResult = function(result)
 				conf_file = computer.File("/server/conf/smtpd.conf")
 				if users_file and conf_file and users_file.has_permission("r") and conf_file.has_permission("r") then
 					if not self.com.File(self.MAIN_PATH+"/CONFIGS/"+result.IP) then self.com.touch(self.MAIN_PATH+"/CONFIGS",result.IP)
-					self.com.File(self.MAIN_PATH+"/CONFIGS/"+result.IP).set_content(conf_file.content+"\"+"n"+users_file.content)
+					self.com.File(self.MAIN_PATH+"/CONFIGS/"+result.IP).set_content(conf_file.get_content+"\"+"n"+users_file.get_content)
 					break
 				end if
 			end for

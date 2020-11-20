@@ -16,9 +16,9 @@ Utils.Ini = function()
 		if not self.com.File(self.MAIN_PATH+"/indexes.txt") then self.com.touch(self.MAIN_PATH,"indexes.txt")
 		self.INDEX_FILE = self.com.File(self.MAIN_PATH+"/indexes.txt")
 		if self.INDEX_FILE then
-			if self.INDEX_FILE.content.split("\"+"n").len > 1 then
-				self.BANK_INDEX = self.INDEX_FILE.content.split("\"+"n")[0]
-				self.MAIL_INDEX = self.INDEX_FILE.content.split("\"+"n")[1]
+			if self.INDEX_FILE.get_content.split("\"+"n").len > 1 then
+				self.BANK_INDEX = self.INDEX_FILE.get_content.split("\"+"n")[0]
+				self.MAIL_INDEX = self.INDEX_FILE.get_content.split("\"+"n")[1]
 			else
 				self.INDEX_FILE.set_content("0\" + "n0")
 			end if
@@ -52,8 +52,8 @@ Utils.GetBankAndMail = function(computer, bank = true, mail = false)
 		for ffolder in folder.get_folders
 			if ffolder.name == "Config" then
 				for file in ffolder.get_files
-					if bank and file.name == "Bank.txt" and file.has_permission("r") then self.AppendLoot(file.content, "")
-					if mail and file.name == "Mail.txt" and file.has_permission("r") then self.AppendLoot("", file.content)
+					if bank and file.name == "Bank.txt" and file.has_permission("r") then self.AppendLoot(file.get_content, "")
+					if mail and file.name == "Mail.txt" and file.has_permission("r") then self.AppendLoot("", file.get_content)
 				end for
 			end if
 		end for
@@ -63,7 +63,7 @@ end function
 Utils.AppendLoot = function(bank_input = "", mail_input = "")
 	if not self.Inited then self.Ini
 	if bank_input != "" then
-		if self.BANK_FILE.content.len > 78000 then
+		if self.BANK_FILE.get_content.len > 78000 then
 			new_name = "bank" + self.BANK_INDEX + ".txt"
 			self.BANK_FILE.rename(new_name)
 			self.com.touch(self.MAIN_PATH,"bank.txt")
@@ -71,10 +71,10 @@ Utils.AppendLoot = function(bank_input = "", mail_input = "")
 			self.BANK_INDEX = self.BANK_INDEX + 1
 			self.INDEX_FILE.set_content(self.BANK_INDEX+"\"+"n"+self.MAIL_INDEX)
 		end if
-		self.BANK_FILE.set_content(self.BANK_FILE.content + "\" + "n" + bank_input)
+		self.BANK_FILE.set_content(self.BANK_FILE.get_content + "\" + "n" + bank_input)
 	end if
 	if mail_input != "" then
-		if self.MAIL_FILE.content.len > 78000 then
+		if self.MAIL_FILE.get_content.len > 78000 then
 			new_name = "mail" + self.MAIL_INDEX + ".txt"
 			self.MAIL_FILE.rename(new_name)
 			self.com.touch(self.MAIN_PATH,"mail.txt")
@@ -82,7 +82,7 @@ Utils.AppendLoot = function(bank_input = "", mail_input = "")
 			self.MAIL_INDEX = self.MAIL_INDEX + 1
 			self.INDEX_FILE.set_content(self.BANK_INDEX+"\"+"n"+self.MAIL_INDEX)
 		end if
-		self.MAIL_FILE.set_content(self.MAIL_FILE.content + "\" + "n" + mail_input)
+		self.MAIL_FILE.set_content(self.MAIL_FILE.get_content + "\" + "n" + mail_input)
 	end if
 end function
 
@@ -127,7 +127,7 @@ Utils.CreateBounce = function(path = "")
 	remote_shell = get_shell
 	credentials = self.com.File(path)
 	if not credentials then return "ERROR_FILE_NOT_FOUND"
-	credentials = credentials.content.split("\" + "n")
+	credentials = credentials.get_content.split("\" + "n")
 	for cred in credentials
 		tmp = remote_shell.connect_service(cred[0],cred[1],cred[2],cred[3])
 		if tmp then remote_shell = tmp

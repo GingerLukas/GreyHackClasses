@@ -66,7 +66,7 @@ DB.GetValue = function(table, entry, name)
 	file = self.computer.File(self.PATH+"/"+table+"/"+entry+"/"+name)
 	if not file then return 0
 	if file.is_binary then return file
-	tmp = file.content
+	tmp = file.get_content
 	if tmp.len > 0 and tmp[0] == char(65534) then
 		tmp = tmp[1%tmp.len:].split(char(65535))
 	else if tmp.len > 0 and tmp[0] == char(65533) then
@@ -80,7 +80,7 @@ DB.GetEntry = function(table, name)
 	if not folder then return null
 	entry = {}
 	for file in folder.get_files
-		tmp = file.content
+		tmp = file.get_content
 		if tmp.len > 0 and tmp[0] == char(65534) then
 			tmp = tmp[1%tmp.len:].split(char(65535))
 		else if tmp.len > 0 and tmp[0] == char(65533) then
@@ -137,7 +137,7 @@ end function
 DB.ListAllEntries = function(table, entry)
 	values = []
 	for file in self.computer.File(self.PATH+"/"+table).get_files
-		entries.push({"name":file.name,"value":file.content})
+		entries.push({"name":file.name,"value":file.get_content})
 	end for
 	return values
 end function

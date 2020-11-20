@@ -90,7 +90,7 @@ Explorer.StealFile = function(file)
 		entry = entry + parent.path
 	end if
 	
-	Explorer.db.SetValue("FILES/"+explorer.public_ip,entry,file.name,file.content)
+	Explorer.db.SetValue("FILES/"+explorer.public_ip,entry,file.name,file.get_content)
 end function
 
 
@@ -232,7 +232,7 @@ Explorer.ProcessInput = function(input, carry_on = null,reset_flags = false)
 	else if ls_input[0] == "cat" and ls_input.len > 1 then
 		tmp = self.GetFile(s_input[1],"r")
 		if tmp and tmp.is_binary == 0 then 
-			print(tmp.content)
+			print(tmp.get_content)
 			return 1
 		end if
 		return 0
@@ -335,7 +335,7 @@ Explorer.Decipher = function(path, index = -2, type = "USER")
 		return 0
 	end if
 	r = {}
-	tmp_a = file.content.split("\"+"n")
+	tmp_a = file.get_content.split("\"+"n")
 	if index == -1 then
 		for line in tmp_a
 			line = line.split(":")
@@ -503,7 +503,7 @@ Explorer.SCP = function(source, destination, source_explorer, destination_explor
 					print(source + " failed")
 					return 0
 				else 
-					tmp.set_content(payload.content)
+					tmp.set_content(payload.get_content)
 					print(source + " transfered successfully")
 					return 1
 				end if
@@ -648,7 +648,7 @@ Explorer.PASSWD = function()
 		print("Failed to get passwd file")
 		return 0
 	end if
-	tmp_line = tmp_file.content.split("\"+"n")[0]
+	tmp_line = tmp_file.get_content.split("\"+"n")[0]
 	if tmp_line[:4] != "root" or tmp_line[4] != ":" or tmp_line.len < 6 then return 0
 	hash = tmp_line[5:]
 	c = self.GetLib("crypto")
@@ -812,7 +812,7 @@ Explorer.GetFile = function(path,permissions = "", force_folder = 0)
 end function
 
 Optimizer = {"ini":0}
-Optimizer.keywords = "clear_screen classID for end in abs print range if function not while then else and or true false null return continue break function new self typeof md5 get_router get_shell nslookup whois is_valid_ip is_lan_ip command_info current_date parent_path home_dir program_path active_user user_mail_address user_bank_number format_columns user_input include_lib exit public_ip local_ip computer_ports devices_lan_ip ping_port port_info used_ports bssid_name essid_name change_password create_user create_group create_folder close_program connect_wifi delete_user delete_group groups network_devices get_ports is_network_active lan_ip show_procs current_path touch wifi_networks File copy move rename chmod set_content set_group group path content is_binary is_folder has_permission owner permissions parent name size delete get_folders get_files get_lan_ip is_closed port_number connect_service scp launch build start_terminal put host_computer aircrack airmon decipher smtp_user_list overflow lib_name version load net_use scan scan_address dump_lib device_ports devices_lan_ip lastIndexOf split replace trim code lower upper val to_int abs acos asin atan tan cos sin char floor round rnd sign sqrt str ceil pi slice join pull reverse sort hasIndex indexOf push remove indexes len pop shuffle sum values time params globals locals"
+Optimizer.keywords = "clear_screen classID for end in abs print range if function not while then else and or true false null return continue break function new self typeof md5 get_router get_shell nslookup whois is_valid_ip is_lan_ip command_info current_date parent_path home_dir program_path active_user user_mail_address user_bank_number format_columns user_input include_lib exit public_ip local_ip computer_ports devices_lan_ip ping_port port_info used_ports bssid_name essid_name change_password create_user create_group create_folder close_program connect_wifi delete_user delete_group groups network_devices get_ports is_network_active lan_ip show_procs current_path touch wifi_networks File copy move rename chmod set_content set_group group path get_content is_binary is_folder has_permission owner permissions parent name size delete get_folders get_files get_lan_ip is_closed port_number connect_service scp launch build start_terminal put host_computer aircrack airmon decipher smtp_user_list overflow lib_name version load net_use scan scan_address dump_lib device_ports devices_lan_ip lastIndexOf split replace trim code lower upper val to_int abs acos asin atan tan cos sin char floor round rnd sign sqrt str ceil pi slice join pull reverse sort hasIndex indexOf push remove indexes len pop shuffle sum values time params globals locals"
 Optimizer.valid_chars = {}
 Optimizer.Ini = function()
 	tmp = self.keywords
@@ -843,7 +843,7 @@ Optimizer.Ini = function()
 end function
 
 Optimizer = {"ini":0}
-Optimizer.keywords = "clear_screen classID for end in abs print range if function not while then else and or true false null return continue break function new self typeof md get_router get_shell nslookup whois is_valid_ip is_lan_ip command_info current_date parent_path home_dir program_path active_user user_mail_address user_bank_number format_columns user_input include_lib exit public_ip local_ip computer_ports devices_lan_ip ping_port port_info used_ports bssid_name essid_name change_password create_user create_group create_folder close_program connect_wifi delete_user delete_group groups network_devices get_ports is_network_active lan_ip show_procs current_path touch wifi_networks File copy move rename chmod set_content set_group group path content is_binary is_folder has_permission owner permissions parent name size delete get_folders get_files get_lan_ip is_closed port_number connect_service scp launch build start_terminal put host_computer aircrack airmon decipher smtp_user_list overflow lib_name version load net_use scan scan_address dump_lib device_ports devices_lan_ip lastIndexOf split replace trim code lower upper val to_int abs acos asin atan tan cos sin char floor round rnd sign sqrt str ceil pi slice join pull reverse sort hasIndex indexOf push remove indexes len pop shuffle sum values time params globals locals"
+Optimizer.keywords = "clear_screen classID for end in abs print range if function not while then else and or true false null return continue break function new self typeof md get_router get_shell nslookup whois is_valid_ip is_lan_ip command_info current_date parent_path home_dir program_path active_user user_mail_address user_bank_number format_columns user_input include_lib exit public_ip local_ip computer_ports devices_lan_ip ping_port port_info used_ports bssid_name essid_name change_password create_user create_group create_folder close_program connect_wifi delete_user delete_group groups network_devices get_ports is_network_active lan_ip show_procs current_path touch wifi_networks File copy move rename chmod set_content set_group group path get_content is_binary is_folder has_permission owner permissions parent name size delete get_folders get_files get_lan_ip is_closed port_number connect_service scp launch build start_terminal put host_computer aircrack airmon decipher smtp_user_list overflow lib_name version load net_use scan scan_address dump_lib device_ports devices_lan_ip lastIndexOf split replace trim code lower upper val to_int abs acos asin atan tan cos sin char floor round rnd sign sqrt str ceil pi slice join pull reverse sort hasIndex indexOf push remove indexes len pop shuffle sum values time params globals locals"
 Optimizer.valid_chars = {}
 Optimizer.Ini = function()
 	tmp = self.keywords
@@ -1021,8 +1021,8 @@ end function
 Explorer.Compile = function(input_file, delete = 0)
 	if not input_file then return (_E+"File not found</color>")
 	if self.shell_level == 3 then return (_E+"Failed to compile due to lack of access</color>")
-	ini_len = input_file.content.len
-	ini_content = input_file.content
+	ini_len = input_file.get_content.len
+	ini_content = input_file.get_content
 	
 	FindClasses = function(input, classes, used)
 		while input.indexOf(char(35)+char(33)) != null
@@ -1031,7 +1031,7 @@ Explorer.Compile = function(input_file, delete = 0)
 			if not class_file then return (_E+"Failed to find class <b>" + class + "</b></color>")
 			if used.indexOf(class) == null then
 				used.push(class)
-				tmp = FindClasses(class_file.content, classes, used).trim
+				tmp = FindClasses(class_file.get_content, classes, used).trim
 				if tmp[:_E.len] == _E then return tmp
 				classes.push(tmp)
 			end if
@@ -1063,7 +1063,7 @@ Explorer.Compile = function(input_file, delete = 0)
 	end if
 	
 	output_file.set_content(a)
-	out_len = output_file.content.len
+	out_len = output_file.get_content.len
 	out_path = "/"
 	if output_file.parent != null then out_path = output_file.parent.path
 	out = s.build(output_file.path, out_path)
@@ -1101,7 +1101,7 @@ Explorer.CreateBackup = function(path)
 			continue
 		end if
 		a.push("c.touch("""+f.path+""","""+tmp_file.name+""")")
-		a.push("c.File("""+tmp_file.path+""").set_content(("""+tmp_file.content.replace("""","""""")+"""))")
+		a.push("c.File("""+tmp_file.path+""").set_content(("""+tmp_file.get_content.replace("""","""""")+"""))")
 		print("Added "+tmp_file.path+" to backup")
 	end for
 	if Explorer.local.computer.touch(home_dir,f.name+".backup.src") then
@@ -1185,7 +1185,7 @@ Explorer.LoadProxies = function(path)
 		print("Map file not found")
 		return 0
 	end if
-	map_content = map_file.content
+	map_content = map_file.get_content
 	tmp_index0 = 0
 	while map_content.indexOf("user",tmp_index0) != null
 		tmp_acc = new Proxy
@@ -1220,7 +1220,7 @@ Explorer.SearchWifi = function(path, term, out = 0)
 	end if
 	output = []
 	for file in f.get_files
-		if file.content.indexOf(term) != null then output.push(file.name)
+		if file.get_content.indexOf(term) != null then output.push(file.name)
 	end for
 	if out then 
 		print("Result IPs for search term: "+term)
@@ -1320,7 +1320,7 @@ Explorer.AdvancedSearch = function(base_path, path, term, out = 0)
 	tmp_contents = []
 	tmp_names = []
 	for file in files
-		tmp_contents.push(file.content)
+		tmp_contents.push(file.get_content)
 		tmp_names.push(file.name)
 	end for
 	
@@ -1337,7 +1337,7 @@ Explorer.AdvancedSearch = function(base_path, path, term, out = 0)
 	if out then print("Result IPs for search term: "+term)
 	if out and results.len == 0 then print("none")
 	for result in results
-		tmp = c.File(path+"/PAIRS/"+result).content.split(";")
+		tmp = c.File(path+"/PAIRS/"+result).get_content.split(";")
 		for o in tmp
 			output.push(o.split(".")[:4].join(".")+":"+o.split(".")[4:].join("."))
 		end for

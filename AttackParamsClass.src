@@ -2,7 +2,7 @@ AttackParams = {"RANDOM":0,"IPS":[],"SSH_ONLY":0,"BANK":0,"MAIL":0,"NUM":1,"SCAN
 AttackParams.LoadIpsFromFile = function(path, com = get_shell.host_computer)
 	file = com.File(path)
 	if not file then return "ERROR_FILE_NOT_FOUND"
-	for ip in file.content.split("\" + "n")
+	for ip in file.get_content.split("\" + "n")
 		if not is_valid_ip(ip) then ip = nslookup(ip)
 		if is_valid_ip(ip) then self.IPS.push(ip)
 	end for
