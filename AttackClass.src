@@ -1,7 +1,7 @@
-#!GingerLukas/UtilsClass!
-#!GingerLukas/ResultClass!
-#!GingerLukas/AttackParamsClass!
-#!GingerLukas/DatabaseClass!
+#!git/GingerLukas/GreyHackClasses/main/UtilsClass.src!
+#!git/GingerLukas/GreyHackClasses/main/ResultClass.src!
+#!git/GingerLukas/GreyHackClasses/main/AttackParamsClass.src!
+#!git/GingerLukas/GreyHackClasses/main/DatabaseClass.src!
 
 Attack = {"m":0,"c":0,"s":get_shell,"MAIN_PATH":0,"DEFAULT_PASS":"toor","RESULTS":[],"Utils":0,"Inited":0, "db":0}
 Attack.com = function()

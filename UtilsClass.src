@@ -1,6 +1,6 @@
-#!GingerLukas/SystemImagerClass!
-#!GingerLukas/TextGeneratorClass!
-#!GingerLukas/DelegateClass!
+#!git/GingerLukas/GreyHackClasses/main/SystemImagerClass.src!
+#!git/GingerLukas/GreyHackClasses/main/TextGeneratorClass.src!
+#!git/GingerLukas/GreyHackClasses/main/DelegateClass.src!
 
 __utils_addToList__ = "__utils_addToList__"
 __system_hash_sizes__ = "__system_hash_sizes__"

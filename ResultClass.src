@@ -1,4 +1,4 @@
-#!GingerLukas/UtilsClass!
+#!git/GingerLukas/GreyHackClasses/main/UtilsClass.src!
 Result = {"pass_changed":0,"SSH_PORTS":0,"IP":"","PORT":0,"NUM_FILES":0,"USER_PASSWD_CHANGED":0,"ROOT_PASSWD":0,"PASSWD":0,"SSH":0,"USERS":[],"root_shells":[],"user_shells":[],"guest_shells":[],"root_computers":[],"user_computers":[],"guest_computers":[],"files":[],"wraped":[]}
 Result.shells = function()
 	return self.root_shells + self.user_shells + self.guest_shells

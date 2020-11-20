@@ -1,4 +1,4 @@
-#!GingerLukas/GZipClass!
+#!git/GingerLukas/GreyHackClasses/main/GZipClass.src!
 
 SystemImager = {"__ini":0,"permToChar":{},"charToPerm":{},"OnTextFile":{},"OnFolder":{},"OnBinaryFile":{}}
 SystemImager.CreateMaps = function()

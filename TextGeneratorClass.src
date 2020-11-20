@@ -1,4 +1,4 @@
-#!GingerLukas/DelegateClass!
+#!git/GingerLukas/GreyHackClasses/main/DelegateClass.src!
 
 TextGenerator = {"OnFinalAdded":{},"CustomTokens":[]}
 TextGenerator.GetToken = function(input,prefix)
